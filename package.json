@@ -8,7 +8,8 @@
     "dev": "concurrently \"npm:watch-*\"",
     "watch-prettier": "onchange '**/!(__generated__)/*.js' -- prettier --write {{changed}}",
     "watch-eslint": "onchange '**/!(__generated__)/*.js' -- eslint {{changed}}",
-    "watch-test": "npm run test -- --watch"
+    "watch-test": "npm run test -- --watch",
+    "sample": "node sample"
   },
   "keywords": [
     "middleware",
@@ -36,8 +37,11 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": [
+    "*.{js,css,md,json}": [
       "prettier --write",
+      "git add"
+    ],
+    "*.{js}": [
       "eslint",
       "git add"
     ]

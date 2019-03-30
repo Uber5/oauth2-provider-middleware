@@ -1,13 +1,15 @@
-const express = require('express')
-const mware = require('../src')
+/* eslint-disable import/no-extraneous-dependencies */
 
-const app = express()
-const authRouter = mware.buildRouter({ express, store: {} })
+const express = require('express');
+const mware = require('../src');
 
-app.use(authRouter)
-app.get('/login', (req, res, next) => {
-  return res.send('login form here...')
-})
+const app = express();
+const authRouter = mware.buildRouter({ express, store: {} });
 
-const port = process.env.PORT || 3000
-app.listen(port).on('listening', () => { console.log('listening on port', port)})
+app.use(authRouter);
+app.get('/login', (req, res, next) => res.send('login form here...'));
+
+const port = process.env.PORT || 3000;
+app.listen(port).on('listening', () => {
+  console.log('listening on port', port);
+});
