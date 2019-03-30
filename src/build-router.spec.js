@@ -2,7 +2,7 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 
 const buildRouter = require('./build-router');
-const { runSampleServer, runSampleClient } = require('../test/helpers');
+const { runSampleServer, runSampleClient, createRandomId } = require('../test/helpers');
 
 let browser;
 beforeAll(async () => {
@@ -19,12 +19,26 @@ describe('buildRouter', () => {
     expect(buildRouter({ express, store: {} })).toBeTruthy();
   });
   it('works via the sample', async () => {
-    const { app, port } = await runSampleServer({ store: {} });
+    const oauthClient = {
+      /* eslint-disable-line camelcase */
+      client_id: createRandomId(),
+      client_secret: 'the secret',
+      redirect_uris: []
+    };
+    const store = {
+      getClientById: async clientId => {
+        if (clientId !== oauthClient.client_id) {
+          throw new Error('invalid client_id');
+        }
+        return Promise.resolve(oauthClient);
+      }
+    };
+    const provider = await runSampleServer({ store });
     const client = await runSampleClient({
-      provider: `http://localhost:${port}`,
-      clientId: 'dummy-client-123'
+      provider: `http://localhost:${provider.port}`,
+      clientId: oauthClient.client_id
     });
-    console.log('SAMPLE provider and client port', port, client.port);
+    oauthClient.redirect_uris.push(`http://localhost:${client.port}/`);
 
     const page = await browser.newPage();
     await page.goto(`http://localhost:${client.port}`);

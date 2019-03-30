@@ -25,7 +25,14 @@ async function runSampleClient({ provider, clientId }) {
   return { app, port };
 }
 
+function createRandomId() {
+  return Math.random()
+    .toString()
+    .split('.')[1];
+}
+
 module.exports = {
   runSampleServer,
-  runSampleClient
+  runSampleClient,
+  createRandomId
 };

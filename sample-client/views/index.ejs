@@ -4,7 +4,7 @@
   const clientId = "<%= clientId %>";
   function authenticate() {
     console.log("provider, clientId", provider, clientId);
-    let location = provider + '/authorize?clientId=' + clientId
+    let location = provider + '/authorize?client_id=' + clientId
     location += '&redirect_uri=' + encodeURIComponent(window.location)
     location += '&response_type=token'
     location += 'state=' + Math.random()

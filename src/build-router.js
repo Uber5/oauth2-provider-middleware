@@ -4,7 +4,8 @@ function buildRouter({ express, store }) {
   ok(express && store);
   const router = express.Router();
   router.get('/authorize', (req, res, next) => {
-    res.end('should authorize');
+    global.console.log('req.query', req.query);
+    res.end(`Should authorize, client_id=${req.query.client_id}`);
     next();
   });
   router.get('/login', (req, res, next) => {
