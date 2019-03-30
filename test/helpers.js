@@ -1,4 +1,5 @@
 const buildApp = require('../sample/app');
+const buildClient = require('../sample-client/client');
 
 const tryToListenOnPort = (app, port) =>
   new Promise(res =>
@@ -25,5 +26,6 @@ async function runSampleClient({ provider, clientId }) {
 }
 
 module.exports = {
-  runSampleServer
+  runSampleServer,
+  runSampleClient
 };

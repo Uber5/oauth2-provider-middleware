@@ -1,6 +1,6 @@
 const express = require('express');
 const buildRouter = require('./build-router');
-const { runSampleServer } = require('../test/helpers');
+const { runSampleServer, runSampleClient } = require('../test/helpers');
 
 describe('buildRouter', () => {
   it('can be instantiated', () => {
@@ -10,7 +10,10 @@ describe('buildRouter', () => {
   });
   it('works via the sample', async () => {
     const { app, port } = await runSampleServer({ store: {} });
-
+    const client = await runSampleClient({
+      provider: `http://localhost:${port}`,
+      clientId: 'dummy-client-123'
+    });
     // TODO:
   });
 });
