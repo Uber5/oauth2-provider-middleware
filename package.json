@@ -50,6 +50,7 @@
     ],
     "*.{js}": [
       "eslint",
+      "npm run test",
       "git add"
     ]
   },
