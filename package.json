@@ -15,6 +15,9 @@
   "author": "chris@uber5.com",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0",
     "express": "^4.16.4",
     "jest": "^24.5.0"
   }
