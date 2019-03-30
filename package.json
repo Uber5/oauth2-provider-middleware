@@ -9,7 +9,8 @@
     "watch-prettier": "onchange '**/!(__generated__)/*.js' -- prettier --write {{changed}}",
     "watch-eslint": "onchange '**/!(__generated__)/*.js' -- eslint {{changed}}",
     "watch-test": "npm run test -- --watch",
-    "sample": "nodemon sample"
+    "sample": "nodemon sample",
+    "sample-client": "nodemon sample-client"
   },
   "keywords": [
     "middleware",
@@ -25,6 +26,7 @@
     "ejs": "^2.6.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
     "express": "^4.16.4",
     "express-session": "^1.15.6",

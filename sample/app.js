@@ -9,24 +9,28 @@ const bodyParser = require('body-parser');
 // What we need from *this* package...
 const { buildRouter } = require('../src');
 
-// instantiate the express app
-const app = express();
+function buildApp({ store }) {
+  // instantiate the express app
+  const app = express();
 
-// you need to setup session, bodyParser, and passport *before* adding the oauth2 router
-app.use(session({ secret: 'do not tell', resave: true, saveUninitialized: true }));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(passport.initialize());
-app.use(passport.session());
+  // you need to setup session, bodyParser, and passport *before* adding the oauth2 router
+  app.use(session({ secret: 'do not tell', resave: true, saveUninitialized: true }));
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(passport.initialize());
+  app.use(passport.session());
 
-// The only view required is for logging in, see /login route below
-// we use views from the ./views directory
-app.set('view engine', 'ejs');
-app.set('views', './sample/views');
+  // The only view required is for logging in, see /login route below
+  // we use views from the ./views directory
+  app.set('view engine', 'ejs');
+  app.set('views', './sample/views');
 
-const authRouter = buildRouter({ express, store: {} });
+  const authRouter = buildRouter({ express, store });
 
-app.use(authRouter);
+  app.use(authRouter);
 
-app.get('/login', (req, res, next) => res.render('login', { bla: 42 }));
+  app.get('/login', (req, res, next) => res.render('login', { bla: 42 }));
 
-module.exports = app;
+  return app;
+}
+
+module.exports = buildApp;

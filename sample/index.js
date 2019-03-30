@@ -1,6 +1,8 @@
-const app = require('./app');
+const buildApp = require('./app');
 
 const port = process.env.PORT || 3000;
-app.listen(port).on('listening', () => {
-  global.console.log('listening on port', port);
-});
+buildApp({ store: {} })
+  .listen(port)
+  .on('listening', () => {
+    global.console.log('listening on port', port);
+  });

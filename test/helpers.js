@@ -1,9 +1,6 @@
-/* eslint-disable implicit-arrow-linebreak */
-/* eslint-disable function-paren-newline */
+const buildApp = require('../sample/app');
 
-const app = require('../sample/app');
-
-const tryToListenOnPort = port =>
+const tryToListenOnPort = (app, port) =>
   new Promise(res =>
     app
       .listen(port)
@@ -11,11 +8,20 @@ const tryToListenOnPort = port =>
       .on('listening', () => res(true))
   );
 
-async function runSampleServer() {
+async function runSampleServer({ store }) {
+  const app = buildApp({ store });
   let port = 2999;
   /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
-  while (!(await tryToListenOnPort(++port))) {}
-  return port;
+  while (!(await tryToListenOnPort(app, ++port))) {}
+  return { app, port };
+}
+
+async function runSampleClient({ provider, clientId }) {
+  const app = buildClient({ provider, clientId });
+  let port = 2999;
+  /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
+  while (!(await tryToListenOnPort(app, ++port))) {}
+  return { app, port };
 }
 
 module.exports = {

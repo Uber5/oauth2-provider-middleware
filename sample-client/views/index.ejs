@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<script>
+  const provider = "<%= provider %>";
+  const clientId = "<%= clientId %>";
+  function authenticate() {
+    console.log("provider, clientId", provider, clientId);
+    let location = provider + '/authenticate?clientId=' + clientId
+    location += '&redirect_uri=' + encodeURIComponent(window.location)
+    location += '&response_type=token'
+    location += 'state=' + Math.random()
+    window.location.replace(location)
+  }
+</script>
+<html>
+  <body>
+    <p>Login via implicit flow</p>
+    <button onclick="authenticate()">Login</button>
+    <p>
+      Once successfully authenticated, you should be back here,
+      access token and potentially other information concerning
+      the authentication should be provided in the hash value of the url.
+    </p>
+  </body>
+</html>
