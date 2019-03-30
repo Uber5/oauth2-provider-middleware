@@ -2,6 +2,7 @@ const { ok } = require('assert');
 
 function buildRouter({ express, store }) {
   ok(express && store);
+  console.log('buildRouter');
 
   const router = express.Router();
   router.get('/authorize', (req, res, next) => {
