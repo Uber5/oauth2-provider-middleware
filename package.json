@@ -1,0 +1,21 @@
+{
+  "name": "oauth2-provider-middleware",
+  "version": "0.0.1",
+  "description": "Middleware implementing an OAuth2 provider, with pluggable storage",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "middleware",
+    "oauth2",
+    "express",
+    "authentication"
+  ],
+  "author": "chris@uber5.com",
+  "license": "MIT",
+  "devDependencies": {
+    "expressjs": "^1.0.1",
+    "jest": "^24.5.0"
+  }
+}
