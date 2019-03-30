@@ -5,7 +5,7 @@ const tryToListenOnPort = (app, port) =>
   new Promise(res =>
     app
       .listen(port)
-      .on('error', res)
+      .on('error', () => res(false))
       .on('listening', () => res(true))
   );
 

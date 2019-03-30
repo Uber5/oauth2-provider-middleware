@@ -36,7 +36,8 @@
     "nodemon": "^1.18.10",
     "onchange": "^5.2.0",
     "passport": "^0.4.0",
-    "prettier": "1.16.4"
+    "prettier": "1.16.4",
+    "puppeteer": "^1.14.0"
   },
   "husky": {
     "hooks": {

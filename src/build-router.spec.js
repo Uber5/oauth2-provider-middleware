@@ -1,6 +1,16 @@
 const express = require('express');
+const puppeteer = require('puppeteer');
+
 const buildRouter = require('./build-router');
 const { runSampleServer, runSampleClient } = require('../test/helpers');
+
+let browser;
+beforeAll(async () => {
+  browser = await puppeteer.launch();
+});
+afterAll(async () => {
+  await browser.close();
+});
 
 describe('buildRouter', () => {
   it('can be instantiated', () => {
@@ -14,6 +24,12 @@ describe('buildRouter', () => {
       provider: `http://localhost:${port}`,
       clientId: 'dummy-client-123'
     });
-    // TODO:
+    console.log('SAMPLE provider and client port', port, client.port);
+
+    const page = await browser.newPage();
+    await page.goto(`http://localhost:${client.port}`);
+    await Promise.all([page.waitForNavigation(), page.click('button')]);
+    await page.screenshot({ path: '/tmp/screenshot.png' });
+    // TODO: ...
   });
 });

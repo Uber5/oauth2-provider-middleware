@@ -4,7 +4,7 @@
   const clientId = "<%= clientId %>";
   function authenticate() {
     console.log("provider, clientId", provider, clientId);
-    let location = provider + '/authenticate?clientId=' + clientId
+    let location = provider + '/authorize?clientId=' + clientId
     location += '&redirect_uri=' + encodeURIComponent(window.location)
     location += '&response_type=token'
     location += 'state=' + Math.random()
@@ -19,6 +19,5 @@
       Once successfully authenticated, you should be back here,
       access token and potentially other information concerning
       the authentication should be provided in the hash value of the url.
-    </p>
   </body>
 </html>
