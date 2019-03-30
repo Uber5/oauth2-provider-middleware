@@ -15,7 +15,7 @@
   "author": "chris@uber5.com",
   "license": "MIT",
   "devDependencies": {
-    "expressjs": "^1.0.1",
+    "express": "^4.16.4",
     "jest": "^24.5.0"
   }
 }
