@@ -9,5 +9,7 @@ module.exports = (err, req, res, next) => {
       state: req.query.state
     });
   }
+  // all other errors are not handled here. By default,
+  // they will result in a 500 error
   return next(err);
 };
