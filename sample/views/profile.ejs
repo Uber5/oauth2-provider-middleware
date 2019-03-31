@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Profile</title>
+  </head>
+  <body>
+    <header>
+      <h1>My Profile: <%= user.name %></h1>
+    </header>
+    <section>
+      <pre>
+        <%= JSON.stringify(user, null, 2) %>
+      </pre>
+    </section>
+  </body>
+</html>

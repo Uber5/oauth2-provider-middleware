@@ -5,6 +5,7 @@ const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const configurePassport = require('./configure-passport');
 
 // What we need from *this* package...
 const { buildRouter } = require('../src');
@@ -16,6 +17,7 @@ function buildApp({ store }) {
   // you need to setup session, bodyParser, and passport *before* adding the oauth2 router
   app.use(session({ secret: 'do not tell', resave: true, saveUninitialized: true }));
   app.use(bodyParser.urlencoded({ extended: false }));
+  configurePassport(passport, store);
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -28,8 +30,40 @@ function buildApp({ store }) {
 
   app.use(authRouter);
 
-  app.get('/login', (req, res, next) => res.render('login', { bla: 42 }));
+  const authenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    req.session.urlAfterLogin = req.url;
+    return res.redirect('/login');
+  };
 
+  app.get('/profile', authenticated, (req, res, next) => res.render('profile', { user: req.user }));
+  app.get('/login', (req, res, next) => res.render('login', { message: null }));
+  app.post('/login', (req, res, next) =>
+    passport.authenticate('local', function(err, user, info) {
+      if (err) {
+        return next(err);
+      }
+      console.log('authenticate local, info', info);
+      if (!user) {
+        return res.render('login', info);
+      }
+      return req.logIn(user, function(_err) {
+        if (_err) {
+          return next(_err);
+        }
+        const url = req.session.urlAfterLogin;
+        delete req.session.urlAfterLogin;
+        return res.redirect(url);
+      });
+    })(req, res, next)
+  );
+  app.get('/logout', authenticated, (req, res) => res.render('logout'));
+  app.post('/logout', authenticated, (req, res) => {
+    req.logout();
+    res.redirect('/login');
+  });
   return app;
 }
 

@@ -45,19 +45,18 @@ function authorize({ store, loginUrl }) {
         return client;
       })
       .then(client => {
-        if (req.session && req.session.user) {
+        if (req.user) {
           // is authenticated
-          return store
-            .getExistingUser()
-            .then(user => Promise.all([user, createAuthorization(client, user)]))
-            .then(([user, auth]) => {
+          return Promise.all([req.user, createAuthorization(client, req.user)]).then(
+            ([user, auth]) => {
               if (response_type === 'code') {
                 return redirectWithCode(res, auth, redirect_uri, state);
               }
               // response_type === 'token'
               ensureClientAllowsImplicitFlow(client);
               return redirectWithToken(res, client, user, auth);
-            });
+            }
+          );
         }
         // is not authenticated, must login
         req.session.urlAfterLogin = req.url; // TODO: keep here?

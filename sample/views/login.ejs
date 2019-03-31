@@ -8,6 +8,7 @@
       <h1>Login</h1>
     </header>
     <section>
+      <% if (message) { %><p><%= message %></p><% } %>
       <form method="POST">
         <input
           type="text"
