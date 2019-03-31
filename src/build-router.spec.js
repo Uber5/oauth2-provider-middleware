@@ -1,6 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 
+const encryptPassword = require('./lib/encrypt-password');
 const buildRouter = require('./build-router');
 const { runSampleServer, runSampleClient, createRandomId } = require('../test/helpers');
 
@@ -22,7 +23,14 @@ describe('buildRouter', () => {
     const oauthClient = {
       client_id: createRandomId(),
       client_secret: 'the secret',
+      implicitFlow: true,
       redirect_uris: []
+    };
+    const plainPassword = 'secret';
+    const user = {
+      _id: Math.random(),
+      name: `${Math.random()}`,
+      password: encryptPassword(plainPassword)
     };
     const store = {
       getClientById: async clientId => {
@@ -30,6 +38,18 @@ describe('buildRouter', () => {
           throw new Error('invalid client_id');
         }
         return Promise.resolve(oauthClient);
+      },
+      getUserByName: async name => {
+        return user;
+      },
+      getUserById: async id => {
+        return user;
+      },
+      newAuthorization: async () => {
+        return {};
+      },
+      newAccessToken: async () => {
+        return {};
       }
     };
     const provider = await runSampleServer({ store });
@@ -42,7 +62,11 @@ describe('buildRouter', () => {
     const page = await browser.newPage();
     await page.goto(`http://localhost:${client.port}`);
     await Promise.all([page.waitForNavigation(), page.click('button')]);
-    await page.screenshot({ path: '/tmp/screenshot.png' });
+    await page.screenshot({ path: '/tmp/login.png' });
+    await page.type("input[name='username']", user.name);
+    await page.type("input[name='password']", plainPassword);
+    await Promise.all([page.waitForNavigation(), page.click('button')]);
+    await page.screenshot({ path: '/tmp/logged-in.png' });
     // TODO: ...
   });
 });

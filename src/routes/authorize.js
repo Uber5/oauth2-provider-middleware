@@ -24,12 +24,31 @@ function ensureClientAllowsImplicitFlow(client) {
   ok(client.implicitFlow, 'Client is not allowed to use response_type "token"');
 }
 
-function redirectWithToken(res, client, user, auth) {
-  throw new Error('not implemented');
+const encodeFragmentData = data =>
+  Object.keys(data)
+    .map(key => `${key}=${encodeURIComponent(data[key])}`)
+    .join('&');
+
+function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
+  return store.newAccessToken({ auth, client, user }).then(token => {
+    const redirectData = {
+      access_token: token.token,
+      token_type: 'token',
+      expires_in: Math.floor(
+        (new Date(token.expiresAt).getTime() - new Date(token.updatedAt)) / 1000
+      ),
+      state,
+      scope: 'missing' // TODO
+    };
+    const url = `${redirectUri}${uriFragmentSeparator(redirectUri)}${encodeFragmentData(
+      redirectData
+    )}`;
+    return res.redirect(url);
+  });
 }
 
-function createAuthorization(client, user) {
-  throw new Error('not implemented');
+function createAuthorization(store, client, user) {
+  return store.newAuthorization({ client, user });
 }
 
 function authorize({ store, loginUrl }) {
@@ -47,14 +66,14 @@ function authorize({ store, loginUrl }) {
       .then(client => {
         if (req.user) {
           // is authenticated
-          return Promise.all([req.user, createAuthorization(client, req.user)]).then(
+          return Promise.all([req.user, createAuthorization(store, client, req.user)]).then(
             ([user, auth]) => {
               if (response_type === 'code') {
                 return redirectWithCode(res, auth, redirect_uri, state);
               }
               // response_type === 'token'
               ensureClientAllowsImplicitFlow(client);
-              return redirectWithToken(res, client, user, auth);
+              return redirectWithToken(store, res, client, user, auth, state, redirect_uri);
             }
           );
         }
