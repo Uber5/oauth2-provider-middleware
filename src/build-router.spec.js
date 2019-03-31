@@ -20,7 +20,6 @@ describe('buildRouter', () => {
   });
   it('works via the sample', async () => {
     const oauthClient = {
-      /* eslint-disable-line camelcase */
       client_id: createRandomId(),
       client_secret: 'the secret',
       redirect_uris: []
