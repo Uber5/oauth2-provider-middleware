@@ -7,8 +7,14 @@ function buildRouter({ express, store, errorHandler }) {
   const router = express.Router();
   router.get('/authorize', (req, res, next) => {
     ensureValidAuthorizeRequest(req);
-    res.end(`Should authorize, client_id=${req.query.client_id}`);
-    next();
+    store
+      .getClientById(req.query.client_id)
+      .then(client => {
+        ok(client, 'Client does not exist');
+        res.end(`Should authorize, client_id=${req.query.client_id}`);
+        next();
+      })
+      .catch(err => next(err));
   });
 
   // TODO: remove, as unnecessary
