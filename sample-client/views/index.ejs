@@ -7,7 +7,7 @@
     let location = provider + '/authorize?client_id=' + clientId
     location += '&redirect_uri=' + encodeURIComponent(window.location)
     location += '&response_type=token'
-    location += 'state=' + Math.random()
+    location += '&state=' + Math.random()
     window.location.replace(location)
   }
 </script>

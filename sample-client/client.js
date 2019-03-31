@@ -12,7 +12,7 @@ function buildClient({ provider, clientId }) {
   app.set('view engine', 'ejs');
   app.set('views', './sample-client/views');
 
-  app.get('/', (req, res, next) => res.render('index', { provider, clientId }));
+  app.get('/', (req, res) => res.render('index', { provider, clientId }));
 
   return app;
 }
