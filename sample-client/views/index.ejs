@@ -2,6 +2,7 @@
 <script>
   const provider = "<%= provider %>";
   const clientId = "<%= clientId %>";
+
   function authenticate() {
     console.log("provider, clientId", provider, clientId);
     let location = provider + '/authorize?client_id=' + clientId
@@ -10,9 +11,18 @@
     location += '&state=' + Math.random()
     window.location.replace(location)
   }
+
+  function checkIfLoggedIn() {
+    if (window.location.hash.match(/access_token/)) {
+      const e = document.createElement('p')
+      e.id = 'logged-in'
+      e.innerHTML = `Logged in, details: ${window.location.hash.split('#')[1]}`
+      document.body.appendChild(e)
+    }
+  }
 </script>
 <html>
-  <body>
+  <body onload="checkIfLoggedIn();">
     <p>Login via implicit flow</p>
     <button onclick="authenticate()">Login</button>
     <p>

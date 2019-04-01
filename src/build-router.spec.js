@@ -5,6 +5,19 @@ const encryptPassword = require('./lib/encrypt-password');
 const buildRouter = require('./build-router');
 const { runSampleServer, runSampleClient, createRandomId } = require('../test/helpers');
 
+/** Check on the page if we are logged in. Assuming an element
+ * with id 'logged-in' is present.
+ */
+const isLoggedInOnPage = async page => {
+  try {
+    const loggedInElemText = await page.$eval('#logged-in', el => el.innerHTML);
+    console.log('loggedInElem loggedInElemText', loggedInElemText);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 let browser;
 beforeAll(async () => {
   browser = await puppeteer.launch();
@@ -61,12 +74,13 @@ describe('buildRouter', () => {
 
     const page = await browser.newPage();
     await page.goto(`http://localhost:${client.port}`);
+    expect(await isLoggedInOnPage(page)).toBe(false);
     await Promise.all([page.waitForNavigation(), page.click('button')]);
     await page.screenshot({ path: '/tmp/login.png' });
     await page.type("input[name='username']", user.name);
     await page.type("input[name='password']", plainPassword);
     await Promise.all([page.waitForNavigation(), page.click('button')]);
     await page.screenshot({ path: '/tmp/logged-in.png' });
-    // TODO: ...
+    expect(await isLoggedInOnPage(page)).toBe(true);
   });
 });
