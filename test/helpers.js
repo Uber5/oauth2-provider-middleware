@@ -1,3 +1,5 @@
+const puppeteer = require('puppeteer');
+
 const buildApp = require('../sample/app');
 const buildClient = require('../sample-client/client');
 
@@ -31,8 +33,17 @@ function createRandomId() {
     .split('.')[1];
 }
 
+let browser;
+async function getBrowser() {
+  if (!browser) {
+    browser = await puppeteer.launch();
+  }
+  return browser;
+}
+
 module.exports = {
   runSampleServer,
   runSampleClient,
-  createRandomId
+  createRandomId,
+  getBrowser
 };

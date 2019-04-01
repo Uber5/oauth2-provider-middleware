@@ -2,7 +2,9 @@
 const { ok } = require('assert');
 const ensureValidAuthorizeRequest = require('../validation/ensure-valid-authorize-request');
 const ensureValidClient = require('../validation/ensure-valid-client');
+const ensureValidAccessToken = require('../validation/ensure-valid-access-token');
 const isRedirectUriAllowed = require('../lib/is-redirect-uri-allowed');
+const createAuthorization = require('../lib/create-authorization');
 
 function uriQuerySeparator(uri) {
   return uri.match(/\?/) ? '&' : '?';
@@ -31,6 +33,7 @@ const encodeFragmentData = data =>
 
 function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
   return store.newAccessToken({ auth, client, user }).then(token => {
+    ensureValidAccessToken(token);
     const redirectData = {
       access_token: token.token,
       token_type: 'token',
@@ -45,10 +48,6 @@ function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
     )}`;
     return res.redirect(url);
   });
-}
-
-function createAuthorization(store, client, user) {
-  return store.newAuthorization({ client, user });
 }
 
 function authorize({ store, loginUrl }) {

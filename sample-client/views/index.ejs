@@ -14,10 +14,13 @@
 
   function checkIfLoggedIn() {
     if (window.location.hash.match(/access_token/)) {
-      const e = document.createElement('p')
-      e.id = 'logged-in'
-      e.innerHTML = `Logged in, details: ${window.location.hash.split('#')[1]}`
-      document.body.appendChild(e)
+      const e1 = document.createElement('p')
+      e1.innerHTML = 'Logged in'
+      document.body.appendChild(e1)
+      const e2 = document.createElement('p')
+      e2.id = 'logged-in'
+      e2.innerHTML = `${window.location.hash.split('#')[1]}`
+      document.body.appendChild(e2)
     }
   }
 </script>
