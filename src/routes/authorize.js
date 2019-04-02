@@ -5,6 +5,7 @@ const ensureValidClient = require('../validation/ensure-valid-client');
 const ensureValidAccessToken = require('../validation/ensure-valid-access-token');
 const isRedirectUriAllowed = require('../lib/is-redirect-uri-allowed');
 const createAuthorization = require('../lib/create-authorization');
+const { ensureRequestedScopesArePermitted, getScopeForResponse } = require('../lib/scopes');
 
 function uriQuerySeparator(uri) {
   return uri.match(/\?/) ? '&' : '?';
@@ -31,7 +32,7 @@ const encodeFragmentData = data =>
     .map(key => `${key}=${encodeURIComponent(data[key])}`)
     .join('&');
 
-function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
+function redirectWithToken(store, res, client, user, auth, state, redirectUri, requestedScope) {
   return store.newAccessToken({ auth, client, user }).then(token => {
     ensureValidAccessToken(token);
     const redirectData = {
@@ -41,7 +42,7 @@ function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
         (new Date(token.expiresAt).getTime() - new Date(token.updatedAt)) / 1000
       ),
       state,
-      scope: 'missing' // TODO
+      scope: getScopeForResponse(client, requestedScope)
     };
     const url = `${redirectUri}${uriFragmentSeparator(redirectUri)}${encodeFragmentData(
       redirectData
@@ -53,12 +54,13 @@ function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
 function authorize({ store, loginUrl }) {
   return (req, res, next) => {
     ensureValidAuthorizeRequest(req);
-    const { redirect_uri, response_type, state } = req.query;
+    const { redirect_uri, response_type, state, scope } = req.query;
     store
       .getClientById(req.query.client_id)
       .then(client => {
         ok(client, 'Client does not exist');
         ensureValidClient(client);
+        ensureRequestedScopesArePermitted(client, scope);
         ok(isRedirectUriAllowed(client, redirect_uri), 'redirect_uri not allowed');
         return client;
       })
@@ -72,7 +74,7 @@ function authorize({ store, loginUrl }) {
               }
               // response_type === 'token'
               ensureClientAllowsImplicitFlow(client);
-              return redirectWithToken(store, res, client, user, auth, state, redirect_uri);
+              return redirectWithToken(store, res, client, user, auth, state, redirect_uri, scope);
             }
           );
         }

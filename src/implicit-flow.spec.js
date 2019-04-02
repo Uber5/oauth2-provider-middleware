@@ -35,7 +35,8 @@ describe('implicit flow', () => {
       client_id: createRandomId(),
       client_secret: 'the secret',
       implicitFlow: true,
-      redirect_uris: []
+      redirect_uris: [],
+      scopes: ['scope1', 'scope2', 'scope3']
     };
     const plainPassword = 'secret';
     const user = {
@@ -71,7 +72,8 @@ describe('implicit flow', () => {
     const provider = await runSampleServer({ store });
     const client = await runSampleClient({
       provider: `http://localhost:${provider.port}`,
-      clientId: oauthClient.client_id
+      clientId: oauthClient.client_id,
+      scope: 'scope1 scope3'
     });
     oauthClient.redirect_uris.push(`http://localhost:${client.port}/`);
 
@@ -91,5 +93,6 @@ describe('implicit flow', () => {
     expect(loginDetails.access_token).toBeTruthy();
     expect(loginDetails.token_type).toBe('token');
     expect(loginDetails.expires_in > 0).toBe(true);
+    expect(loginDetails.scope).toMatch(/scope1/);
   });
 });
