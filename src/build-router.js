@@ -1,5 +1,6 @@
 const { ok } = require('assert');
 const authorize = require('./routes/authorize');
+const token = require('./routes/token');
 const defaultErrorHandler = require('./lib/default-error-handler');
 
 function buildRouter({ express, store, errorHandler, loginUrl }) {
@@ -12,6 +13,8 @@ function buildRouter({ express, store, errorHandler, loginUrl }) {
     global.console.log('login... but we just call next...');
     next();
   });
+
+  router.post('/token', token(store));
 
   router.use(errorHandler || defaultErrorHandler);
   return router;

@@ -30,6 +30,15 @@ function buildMongoStore({ uri, mongodb }) {
     return user;
   }
 
+  async function getAuthByCode(code, client) {
+    const auth = await (await Authorizations).findOne({
+      clientId: client._id,
+      code,
+      status: 'created'
+    });
+    return auth;
+  }
+
   async function newAccessToken({ auth, client, user }) {
     const now = new Date();
     const expiresAt = getExpiresAt(client, now);
@@ -81,12 +90,34 @@ function buildMongoStore({ uri, mongodb }) {
     return value;
   }
 
+  async function updateAuthToConsumed({ client }) {
+    const now = new Date();
+    const { value } = await (await Authorizations).findOneAndUpdate(
+      {
+        clientId: client._id
+      },
+      {
+        $set: {
+          updatedAt: now,
+          status: 'consumed'
+        }
+      },
+      {
+        upsert: true,
+        returnOriginal: false
+      }
+    );
+    return value;
+  }
+
   return {
     getClientById,
     getUserByName,
     getUserById,
+    getAuthByCode,
     newAuthorization,
-    newAccessToken
+    newAccessToken,
+    updateAuthToConsumed
   };
 }
 
