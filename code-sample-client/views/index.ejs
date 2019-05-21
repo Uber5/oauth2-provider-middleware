@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<script>
+  const provider = "<%= provider %>";
+  const clientId = "<%= clientId %>";
+
+  function authenticate() {
+    console.log("provider, clientId", provider, clientId);
+    let location = provider + '/authorize?client_id=' + clientId
+    location += '&redirect_uri=' + encodeURIComponent(window.location)
+    location += '&response_type=code'
+    // location += '&state=' + Math.random()
+    window.location.replace(location)
+  }
+
+  function checkIfLoggedIn() {
+    if (window.location.hash.match(/token/)) {
+      const e1 = document.createElement('p')
+      e1.innerHTML = 'Logged in'
+      document.body.appendChild(e1)
+      const e2 = document.createElement('p')
+      e2.id = 'logged-in'
+      e2.innerHTML = `${window.location.hash.split('#')[1]}`
+      document.body.appendChild(e2)
+    }
+  }
+</script>
+<html>
+  <body onload="checkIfLoggedIn();">
+    <p>Login via code flow</p>
+    <button onclick="authenticate()">Login</button>
+    <p>
+      Once successfully authenticated, you should be back here,
+      access token and potentially other information concerning
+      the authentication should be provided in the hash value of the url.
+  </body>
+</html>

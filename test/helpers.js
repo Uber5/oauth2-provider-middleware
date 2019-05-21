@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 
 const buildApp = require('../sample/app');
 const buildClient = require('../sample-client/client');
+const buildCodeClient = require('../code-sample-client/client');
 
 const tryToListenOnPort = (app, port) =>
   new Promise(res =>
@@ -27,6 +28,14 @@ async function runSampleClient({ provider, clientId }) {
   return { app, port };
 }
 
+async function runCodeSampleClient({ provider, clientId }) {
+  const app = buildCodeClient({ provider, clientId });
+  let port = 2999;
+  /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
+  while (!(await tryToListenOnPort(app, ++port))) {}
+  return { app, port };
+}
+
 function createRandomId() {
   return Math.random()
     .toString()
@@ -44,6 +53,7 @@ async function getBrowser() {
 module.exports = {
   runSampleServer,
   runSampleClient,
+  runCodeSampleClient,
   createRandomId,
   getBrowser
 };
