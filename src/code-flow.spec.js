@@ -91,7 +91,7 @@ describe('code flow', () => {
     const provider = await runSampleServer({ store });
     const client = await runCodeSampleClient({
       provider: `http://localhost:${provider.port}`,
-      clientId: oauthClient.client_id,
+      client: oauthClient,
       scope: 'scope1 scope3'
     });
     oauthClient.redirect_uris.push(`http://localhost:${client.port}`);
@@ -105,12 +105,8 @@ describe('code flow', () => {
     await page.type("input[name='username']", user.name);
     await page.type("input[name='password']", plainPassword);
     await Promise.all([page.waitForNavigation(), page.click('button')]);
-    // redirect with code
-    await page.goto(`http://localhost:${client.port}`);
-    // exchange code for token
 
     await page.screenshot({ path: '/tmp/logged-in.png' });
-
     expect(await isLoggedInOnPage(page)).toBe(true);
     const loginDetails = await getLoginDetails(page);
     expect(loginDetails.token_type).toBe('token');

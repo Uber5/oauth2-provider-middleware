@@ -7,13 +7,13 @@
     console.log("provider, clientId", provider, clientId);
     let location = provider + '/authorize?client_id=' + clientId
     location += '&redirect_uri=' + encodeURIComponent(window.location)
-    location += '&response_type=code'
+    location += '&response_type=token'
     // location += '&state=' + Math.random()
     window.location.replace(location)
   }
 
   function checkIfLoggedIn() {
-    if (window.location.hash.match(/token/)) {
+    if (window.location.hash.match(/access_token/)) {
       const e1 = document.createElement('p')
       e1.innerHTML = 'Logged in'
       document.body.appendChild(e1)
