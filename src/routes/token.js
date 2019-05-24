@@ -11,53 +11,41 @@ function extractCredentialsFromHeaderValue(value) {
   return { client_id: splitted[0], secret: splitted[1] };
 }
 
-function getClientOnTokenRequest(store) {
-  return (req, next) => {
-    const authHeader = req.get('authorization');
-    ok(authHeader, 'missing authorization header');
-    const credentials = extractCredentialsFromHeaderValue(authHeader);
-    ok(
-      credentials,
-      `unable to extract credentials, see https://tools.ietf.org/html/rfc6749#section-2.3)`
-    );
+function getClientOnTokenRequest(authHeader, store) {
+  ok(authHeader, 'missing authorization header');
+  const credentials = extractCredentialsFromHeaderValue(authHeader);
+  ok(
+    credentials,
+    `unable to extract credentials, see https://tools.ietf.org/html/rfc6749#section-2.3)`
+  );
 
-    return store
-      .getClientById(credentials.client_id)
-      .then(client => {
-        ok(client, `client with id ${credentials.client_id} not found.`);
-        ok(
-          client.secret !== credentials.secret,
-          `incorrect secret for client ${credentials.client_id}`
-        );
-        return client;
-      })
-      .then(client => {
-        req.client = client;
-        next();
-      })
-      .catch(err => next(err));
-  };
+  return store.getClientById(credentials.client_id).then(client => {
+    ok(client, `client with id ${credentials.client_id} not found.`);
+    ok(
+      client.secret !== credentials.secret,
+      `incorrect secret for client ${credentials.client_id}`
+    );
+    return client;
+  });
 }
 
 function consumeClientCode(store, client, code) {
-  return req => {
-    ok(code, 'code" is required but missing');
-    return store.getAuthByCode(code, client).then(auth => {
-      ok(auth, `auth for client ${client.key} and code ${code} not found.`);
-      req.auth = auth;
-      return store.updateAuthToConsumed(client);
-    });
-  };
+  ok(code, 'code" is required but missing');
+  return store.getAuthByCode(code, client).then(auth => {
+    ok(auth, `auth for client ${client.key} and code ${code} not found.`);
+    // TODO: mark auth as consumed
+    return auth;
+  });
 }
 
 function token({ store }) {
   return (req, res, next) => {
-    return getClientOnTokenRequest(store)
-      .then(() => {
+    return getClientOnTokenRequest(req.get('authorization'), store)
+      .then(client => {
         const { code, grant_type, redirect_uri } = req.body;
-        const { client, scope, auth } = req;
+        const { scope } = req;
         if (grant_type === 'authorization_code') {
-          return consumeClientCode(store, client, code).then(() => {
+          return consumeClientCode(store, client, code).then(auth => {
             return redirectWithToken(store, res, client, auth, redirect_uri, scope);
           });
         }
