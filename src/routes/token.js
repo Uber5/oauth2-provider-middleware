@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 const { ok } = require('assert');
-const redirectWithToken = require('../lib/redirect-with-token');
+const getToken = require('../lib/get-token');
 
 function extractCredentialsFromHeaderValue(value) {
   const match = value.match(/^Basic (.+)$/);
@@ -33,20 +33,48 @@ function consumeClientCode(store, client, code) {
   ok(code, 'code" is required but missing');
   return store.getAuthByCode(code, client).then(auth => {
     ok(auth, `auth for client ${client.key} and code ${code} not found.`);
-    // TODO: mark auth as consumed
     return auth;
   });
 }
 
 function token({ store }) {
   return (req, res, next) => {
+    if (req.body.client_id) {
+      const { code, grant_type, client_id, client_secret, state } = req.body;
+      return store
+        .getClientById(client_id)
+        .then(client => {
+          ok(client, `client with id ${client_id} not found.`);
+          ok(client.secret !== client_secret, `incorrect secret for client ${client_id}`);
+          if (grant_type === 'authorization_code') {
+            return consumeClientCode(store, client, code).then(auth => {
+              console.log('Auth', auth);
+              return getToken(store, client, auth, state, client.scopes[0]).then(accessToken => {
+                console.log('Token', accessToken);
+                return store.updateAuthToConsumed(auth).then(() => {
+                  res.send(accessToken);
+                });
+              });
+            });
+          }
+          // TODO: need to support other grant types
+          throw new Error('Grant type not implemented');
+        })
+        .catch(err => next(err));
+    }
     return getClientOnTokenRequest(req.get('authorization'), store)
       .then(client => {
-        const { code, grant_type, redirect_uri } = req.body;
+        const { code, grant_type, state } = req.body;
         const { scope } = req;
+
         if (grant_type === 'authorization_code') {
           return consumeClientCode(store, client, code).then(auth => {
-            return redirectWithToken(store, res, client, auth, redirect_uri, scope);
+            return getToken(store, client, auth, state, scope).then(accessToken => {
+              console.log('Token', accessToken);
+              return store.updateAuthToConsumed(auth).then(() => {
+                res.send(accessToken);
+              });
+            });
           });
         }
         // TODO: need to support other grant types

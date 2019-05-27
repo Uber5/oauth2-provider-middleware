@@ -14,7 +14,7 @@ function buildRouter({ express, store, errorHandler, loginUrl }) {
     next();
   });
 
-  router.post('/token', token(store));
+  router.post('/token', token({ store }));
 
   router.use(errorHandler || defaultErrorHandler);
   return router;

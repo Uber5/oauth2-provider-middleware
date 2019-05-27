@@ -52,10 +52,10 @@ describe('implicit flow', () => {
         }
         return Promise.resolve(oauthClient);
       },
-      getUserByName: async name => {
+      getUserByName: async () => {
         return user;
       },
-      getUserById: async id => {
+      getUserById: async () => {
         return user;
       },
       newAuthorization: async () => {
