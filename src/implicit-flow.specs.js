@@ -1,6 +1,6 @@
 const encryptPassword = require('./lib/encrypt-password');
 const { runSampleServer, runSampleClient, createRandomId, getBrowser } = require('../test/helpers');
-const newCode = require('../src/lib/new-code');
+const newCode = require('./lib/new-code');
 
 const getLoggedInElemText = async page => page.$eval('#logged-in', el => el.innerHTML);
 

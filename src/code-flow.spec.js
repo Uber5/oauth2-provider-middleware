@@ -105,10 +105,6 @@ describe('code flow', () => {
     await page.type("input[name='username']", user.name);
     await page.type("input[name='password']", plainPassword);
     await Promise.all([page.waitForNavigation(), page.click('button')]);
-    // redirect with code
-    await page.goto(`http://localhost:${client.port}`);
-    // exchange code for token
-
     await page.screenshot({ path: '/tmp/logged-in.png' });
 
     expect(await isLoggedInOnPage(page)).toBe(true);
