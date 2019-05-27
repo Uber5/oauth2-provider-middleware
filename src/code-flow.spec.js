@@ -5,7 +5,7 @@ const {
   createRandomId,
   getBrowser
 } = require('../test/helpers');
-const newCode = require('../src/lib/new-code');
+const newCode = require('./lib/new-code');
 
 const getLoggedInElemText = async page => page.$eval('#logged-in', el => el.innerHTML);
 
@@ -89,12 +89,12 @@ describe('code flow', () => {
       }
     };
     const provider = await runSampleServer({ store });
+    oauthClient.redirect_uris.push(`http://localhost:3001/logged-in`);
     const client = await runCodeSampleClient({
       provider: `http://localhost:${provider.port}`,
-      clientId: oauthClient.client_id,
+      client: oauthClient,
       scope: 'scope1 scope3'
     });
-    oauthClient.redirect_uris.push(`http://localhost:${client.port}`);
 
     const browser = await getBrowser();
     const page = await browser.newPage();
@@ -109,8 +109,8 @@ describe('code flow', () => {
 
     expect(await isLoggedInOnPage(page)).toBe(true);
     const loginDetails = await getLoginDetails(page);
-    expect(loginDetails.token_type).toBe('token');
     expect(loginDetails.access_token).toBeTruthy();
+    expect(loginDetails.token_type).toBe('token');
     expect(loginDetails.expires_in > 0).toBe(true);
     expect(loginDetails.scope).toMatch(/scope1/);
   }, 30000);

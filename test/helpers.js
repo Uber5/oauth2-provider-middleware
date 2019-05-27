@@ -28,8 +28,8 @@ async function runSampleClient({ provider, clientId }) {
   return { app, port };
 }
 
-async function runCodeSampleClient({ provider, clientId }) {
-  const app = buildCodeClient({ provider, clientId });
+async function runCodeSampleClient({ provider, client }) {
+  const app = buildCodeClient({ provider, client });
   let port = 2999;
   /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
   while (!(await tryToListenOnPort(app, ++port))) {}
