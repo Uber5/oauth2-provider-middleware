@@ -13,8 +13,6 @@ function buildCodeClient({ provider, client }) {
   app.use(passport.session()); // Used to persist login sessions
   // eslint-disable-next-line camelcase
   const { client_id, client_secret, redirect_uris } = client;
-  // eslint-disable-next-line camelcase
-  const clientId = client_id;
   const redirectUri = redirect_uris[0];
   // Strategy config
   passport.use(
@@ -57,13 +55,13 @@ function buildCodeClient({ provider, client }) {
     console.log('code client, render index, req.user', req.user);
     res.render('index', { isLoggedIn: !!req.user });
   });
-  app.get(
-    '/auth',
-    passport.authenticate('oauth2', {
-      successRedirect: '/logged-in',
-      failureRedirect: '/login'
-    })
-  );
+  // app.get(
+  //   '/auth',
+  //   passport.authenticate('oauth2', {
+  //     successRedirect: '/logged-in',
+  //     failureRedirect: '/login'
+  //   })
+  // );
   return app;
 }
 

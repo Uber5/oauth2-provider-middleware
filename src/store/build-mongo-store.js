@@ -90,11 +90,11 @@ function buildMongoStore({ uri, mongodb }) {
     return value;
   }
 
-  async function updateAuthToConsumed({ client }) {
+  async function updateAuthToConsumed({ auth }) {
     const now = new Date();
     const { value } = await (await Authorizations).findOneAndUpdate(
       {
-        clientId: client._id
+        clientId: auth.clientId
       },
       {
         $set: {
