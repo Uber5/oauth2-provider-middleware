@@ -76,7 +76,13 @@ describe('code flow', () => {
           createdAt: new Date()
         };
       },
-      getAuthByCode: async () => {
+      getAuthByCode: async (_code, client) => {
+        if (client.client_id !== oauthClient.client_id) {
+          throw new Error('invalid client_id');
+        }
+        if (code !== _code) {
+          throw new Error('invalid code');
+        }
         return {
           clientId: oauthClient.client_id,
           userId: _id,
@@ -85,9 +91,6 @@ describe('code flow', () => {
           updatedAt: new Date(),
           createdAt: new Date()
         };
-      },
-      updateAuthToConsumed: async () => {
-        return {};
       },
       newAccessToken: async () => {
         return {

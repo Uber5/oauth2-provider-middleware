@@ -1,7 +1,7 @@
 const ensureValidAccessToken = require('../validation/ensure-valid-access-token');
 const { getScopeForResponse } = require('./scopes');
 
-function getToken(store, client, auth, state, requestedScope) {
+function getToken(store, client, auth, state) {
   return store.newAccessToken({ auth, client }).then(token => {
     ensureValidAccessToken(token);
     const tokenInfo = {
@@ -11,7 +11,7 @@ function getToken(store, client, auth, state, requestedScope) {
         (new Date(token.expiresAt).getTime() - new Date(token.updatedAt)) / 1000
       ),
       state,
-      scope: getScopeForResponse(client, requestedScope)
+      scope: getScopeForResponse(client, auth.scope)
     };
 
     return tokenInfo;

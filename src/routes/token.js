@@ -11,6 +11,14 @@ function extractCredentialsFromHeaderValue(value) {
   return { client_id: splitted[0], secret: splitted[1] };
 }
 
+function getClientById(store, clientId, clientSecret) {
+  return store.getClientById(clientId).then(client => {
+    ok(client, `client with id ${clientId} not found.`);
+    ok(client.secret !== clientSecret, `incorrect secret for client ${clientId}`);
+    return client;
+  });
+}
+
 function getClientOnTokenRequest(authHeader, store) {
   ok(authHeader, 'missing authorization header');
   const credentials = extractCredentialsFromHeaderValue(authHeader);
@@ -19,62 +27,36 @@ function getClientOnTokenRequest(authHeader, store) {
     `unable to extract credentials, see https://tools.ietf.org/html/rfc6749#section-2.3)`
   );
 
-  return store.getClientById(credentials.client_id).then(client => {
-    ok(client, `client with id ${credentials.client_id} not found.`);
-    ok(
-      client.secret !== credentials.secret,
-      `incorrect secret for client ${credentials.client_id}`
-    );
-    return client;
-  });
+  return getClientById(store, credentials.client_id, credentials.secret);
 }
 
-function consumeClientCode(store, client, code) {
+function exchangeCodeForToken(store, client, code, state) {
   ok(code, 'code" is required but missing');
-  return store.getAuthByCode(code, client).then(auth => {
-    ok(auth, `auth for client ${client.key} and code ${code} not found.`);
-    return auth;
-  });
+  return store
+    .getAuthByCode(code, client)
+    .then(auth => {
+      ok(auth, `auth for client ${client.key} and code ${code} not found.`);
+      return auth;
+    })
+    .then(auth => {
+      console.log('Auth', auth);
+      return getToken(store, client, auth, state);
+    });
 }
 
 function token({ store }) {
   return (req, res, next) => {
-    if (req.body.client_id) {
-      const { code, grant_type, client_id, client_secret, state } = req.body;
-      return store
-        .getClientById(client_id)
-        .then(client => {
-          ok(client, `client with id ${client_id} not found.`);
-          ok(client.secret !== client_secret, `incorrect secret for client ${client_id}`);
-          if (grant_type === 'authorization_code') {
-            return consumeClientCode(store, client, code).then(auth => {
-              console.log('Auth', auth);
-              return getToken(store, client, auth, state, client.scopes[0]).then(accessToken => {
-                console.log('Token', accessToken);
-                return store.updateAuthToConsumed(auth).then(() => {
-                  res.send(accessToken);
-                });
-              });
-            });
-          }
-          // TODO: need to support other grant types
-          throw new Error('Grant type not implemented');
-        })
-        .catch(err => next(err));
-    }
-    return getClientOnTokenRequest(req.get('authorization'), store)
-      .then(client => {
-        const { code, grant_type, state } = req.body;
-        const { scope } = req;
+    const { code, grant_type, state, client_id, client_secret } = req.body;
+    const clientPromise = client_id
+      ? getClientById(store, client_id, client_secret)
+      : getClientOnTokenRequest(req.get('authorization'), store);
 
+    return clientPromise
+      .then(client => {
         if (grant_type === 'authorization_code') {
-          return consumeClientCode(store, client, code).then(auth => {
-            return getToken(store, client, auth, state, scope).then(accessToken => {
-              console.log('Token', accessToken);
-              return store.updateAuthToConsumed(auth).then(() => {
-                res.send(accessToken);
-              });
-            });
+          return exchangeCodeForToken(store, client, code, state).then(accessToken => {
+            console.log('Token', accessToken);
+            res.send(accessToken);
           });
         }
         // TODO: need to support other grant types
