@@ -31,12 +31,25 @@ function buildMongoStore({ uri, mongodb }) {
   }
 
   async function getAuthByCode(code, client) {
-    const auth = await (await Authorizations).findOne({
-      clientId: client._id,
-      code,
-      status: 'created'
-    });
-    return auth;
+    const now = new Date();
+    const { value } = await (await Authorizations).findOneAndUpdate(
+      {
+        clientId: client._id,
+        code,
+        status: 'created'
+      },
+      {
+        $set: {
+          updatedAt: now,
+          status: 'consumed'
+        }
+      },
+      {
+        upsert: true,
+        returnOriginal: false
+      }
+    );
+    return value;
   }
 
   async function newAccessToken({ auth, client, user }) {
@@ -66,7 +79,7 @@ function buildMongoStore({ uri, mongodb }) {
     return value;
   }
 
-  async function newAuthorization({ client, user }) {
+  async function newAuthorization({ client, user, requestedScope }) {
     const now = new Date();
     const { value } = await (await Authorizations).findOneAndUpdate(
       {
@@ -76,30 +89,11 @@ function buildMongoStore({ uri, mongodb }) {
       {
         $set: {
           updatedAt: now,
-          code: newCode()
+          code: newCode(),
+          scope: requestedScope || client.scopes.join(' ')
         },
         $setOnInsert: {
           createdAt: now
-        }
-      },
-      {
-        upsert: true,
-        returnOriginal: false
-      }
-    );
-    return value;
-  }
-
-  async function updateAuthToConsumed({ auth }) {
-    const now = new Date();
-    const { value } = await (await Authorizations).findOneAndUpdate(
-      {
-        clientId: auth.clientId
-      },
-      {
-        $set: {
-          updatedAt: now,
-          status: 'consumed'
         }
       },
       {
@@ -116,8 +110,7 @@ function buildMongoStore({ uri, mongodb }) {
     getUserById,
     getAuthByCode,
     newAuthorization,
-    newAccessToken,
-    updateAuthToConsumed
+    newAccessToken
   };
 }
 

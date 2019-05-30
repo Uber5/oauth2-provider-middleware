@@ -32,7 +32,7 @@ const encodeFragmentData = data =>
     .map(key => `${key}=${encodeURIComponent(data[key])}`)
     .join('&');
 
-function redirectWithToken(store, res, client, user, auth, state, redirectUri, requestedScope) {
+function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
   return store.newAccessToken({ auth, client, user }).then(token => {
     ensureValidAccessToken(token);
     const redirectData = {
@@ -42,7 +42,7 @@ function redirectWithToken(store, res, client, user, auth, state, redirectUri, r
         (new Date(token.expiresAt).getTime() - new Date(token.updatedAt)) / 1000
       ),
       state,
-      scope: getScopeForResponse(client, requestedScope)
+      scope: getScopeForResponse(client, auth.scope)
     };
     const url = `${redirectUri}${uriFragmentSeparator(redirectUri)}${encodeFragmentData(
       redirectData
@@ -67,14 +67,14 @@ function authorize({ store, loginUrl }) {
       .then(client => {
         if (req.user) {
           // is authenticated
-          return Promise.all([req.user, createAuthorization(store, client, req.user)]).then(
+          return Promise.all([req.user, createAuthorization(store, client, req.user, scope)]).then(
             ([user, auth]) => {
               if (response_type === 'code') {
                 return redirectWithCode(res, auth, redirect_uri, state);
               }
               // response_type === 'token'
               ensureClientAllowsImplicitFlow(client);
-              return redirectWithToken(store, res, client, user, auth, state, redirect_uri, scope);
+              return redirectWithToken(store, res, client, user, auth, state, redirect_uri);
             }
           );
         }
