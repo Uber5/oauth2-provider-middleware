@@ -68,14 +68,15 @@ describe('implicit flow', () => {
       },
       newAuthorization: async ({ client, user, requestedScope }) => {
         if (
-          client.client_id !== oauthClient.client_id &&
+          client.client_id !== oauthClient.client_id ||
           client.client_secret !== oauthClient.client_secret
         ) {
           throw new Error('Invalid client');
-        } else if (
+        }
+        if (
           // eslint-disable-next-line no-underscore-dangle
-          user._id !== userInfo._id &&
-          user.name !== userInfo.name &&
+          user._id !== userInfo._id ||
+          user.name !== userInfo.name ||
           user.password !== userInfo.password
         ) {
           throw new Error('Invalid user');
@@ -84,24 +85,21 @@ describe('implicit flow', () => {
         return {};
       },
       newAccessToken: async ({ auth, client, user }) => {
-        console.log('authhhh ', auth);
         if (
-          client.client_id !== oauthClient.client_id &&
+          client.client_id !== oauthClient.client_id ||
           client.client_secret !== oauthClient.client_secret
         ) {
           throw new Error('Invalid client');
-        } else if (
+        }
+        if (
           // eslint-disable-next-line no-underscore-dangle
-          user._id !== userInfo._id &&
-          user.name !== userInfo.name &&
+          user._id !== userInfo._id ||
+          user.name !== userInfo.name ||
           user.password !== userInfo.password
         ) {
           throw new Error('Invalid user');
         }
-
-        // else if (auth.access_token !== token) {
-        //   throw new Error('Invalid auth')
-        // }
+        // TODO : auth check
         return {
           token,
           updatedAt: new Date(),
@@ -112,8 +110,7 @@ describe('implicit flow', () => {
     const provider = await runSampleServer({ store });
     const client = await runSampleClient({
       provider: `http://localhost:${provider.port}`,
-      clientId: oauthClient.client_id,
-      scope: 'scope1 scope3'
+      clientId: oauthClient.client_id
     });
     oauthClient.redirect_uris.push(`http://localhost:${client.port}/`);
 
@@ -134,5 +131,6 @@ describe('implicit flow', () => {
     expect(loginDetails.token_type).toBe('token');
     expect(loginDetails.expires_in > 0).toBe(true);
     expect(loginDetails.scope).toMatch(/scope1/);
-  });
+    await browser.close();
+  }, 60000);
 });
