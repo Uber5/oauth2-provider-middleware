@@ -90,7 +90,7 @@ function buildMongoStore({ uri, mongodb }) {
         $set: {
           updatedAt: now,
           code: newCode(),
-          scope: requestedScope
+          scope: requestedScope || client.scopes.join(' ')
         },
         $setOnInsert: {
           createdAt: now
