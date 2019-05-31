@@ -38,10 +38,7 @@ function exchangeCodeForToken(store, client, code, state) {
       ok(auth, `auth for client ${client.key} and code ${code} not found.`);
       return auth;
     })
-    .then(auth => {
-      console.log('Auth', auth);
-      return getToken(store, client, auth, state);
-    });
+    .then(auth => getToken(store, client, auth, state));
 }
 
 function token({ store }) {
@@ -55,7 +52,6 @@ function token({ store }) {
       .then(client => {
         if (grant_type === 'authorization_code') {
           return exchangeCodeForToken(store, client, code, state).then(accessToken => {
-            console.log('Token', accessToken);
             res.send(accessToken);
           });
         }

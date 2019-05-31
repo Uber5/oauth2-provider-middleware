@@ -115,6 +115,21 @@ describe('code flow', () => {
         };
       },
       newAccessToken: async ({ auth, client, user }) => {
+        if (
+          client.client_id !== oauthClient.client_id ||
+          client.client_secret !== oauthClient.client_secret
+        ) {
+          throw new Error('Invalid client');
+        }
+        if (
+          // eslint-disable-next-line no-underscore-dangle
+          user._id !== userInfo._id ||
+          user.name !== userInfo.name ||
+          user.password !== userInfo.password
+        ) {
+          throw new Error('Invalid user');
+        }
+
         return {
           token,
           updatedAt: new Date(),

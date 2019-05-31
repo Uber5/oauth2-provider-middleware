@@ -55,13 +55,7 @@ function buildCodeClient({ provider, client }) {
     console.log('code client, render index, req.user', req.user);
     res.render('index', { isLoggedIn: !!req.user });
   });
-  // app.get(
-  //   '/auth',
-  //   passport.authenticate('oauth2', {
-  //     successRedirect: '/logged-in',
-  //     failureRedirect: '/login'
-  //   })
-  // );
+
   return app;
 }
 
