@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable import/no-extraneous-dependencies */
 
 // require your own version of express, passport, express-session and body-parser

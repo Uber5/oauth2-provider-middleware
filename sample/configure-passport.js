@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable import/no-extraneous-dependencies */
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
