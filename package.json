@@ -2,7 +2,7 @@
   "name": "oauth2-provider-middleware",
   "version": "0.0.1",
   "description": "Middleware implementing an OAuth2 provider, with pluggable storage",
-  "main": "index.js",
+  "main": "src",
   "scripts": {
     "test": "jest",
     "dev": "concurrently \"npm:watch-*\"",
@@ -60,6 +60,7 @@
     ]
   },
   "dependencies": {
+    "debug": "^4.1.1",
     "passport-oauth2": "^1.5.0"
   }
 }

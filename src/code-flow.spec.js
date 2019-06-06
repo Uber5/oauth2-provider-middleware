@@ -137,6 +137,8 @@ describe('code flow', () => {
       client: oauthClient
     });
 
+    console.log('code flow, client port, provider port', client.port, provider.port);
+
     const browser = await getBrowser();
     const page = await browser.newPage();
     await page.goto(`http://localhost:${client.port}`);

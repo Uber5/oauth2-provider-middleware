@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+const debug = require('debug')('oauth2-provider-middleware:authorize');
 const { ok } = require('assert');
 const ensureValidAuthorizeRequest = require('../validation/ensure-valid-authorize-request');
 const ensureValidClient = require('../validation/ensure-valid-client');
@@ -82,7 +83,10 @@ function authorize({ store, loginUrl }) {
         req.session.urlAfterLogin = req.url; // TODO: keep here?
         return res.redirect(loginUrl);
       })
-      .catch(err => next(err));
+      .catch(err => {
+        debug('ERR on /authorize', err);
+        next(err);
+      });
   };
 }
 module.exports = authorize;
