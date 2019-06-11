@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 const newCode = require('../lib/new-code');
 
-function getExpiresAt(client, now) {
-  const ttl = client.accessTokenTtlSecs || 60 /* minutes */ * 60;
+function getExpiresAt(tokenTtl, now) {
+  const ttl = tokenTtl || 60 /* minutes */ * 60;
   return new Date(now.getTime() + ttl * 1000);
 }
 
@@ -52,9 +52,9 @@ function buildMongoStore({ uri, mongodb }) {
     return value;
   }
 
-  async function newAccessToken({ auth, client, user }) {
+  async function newAccessToken({ auth, accessTokenTtlSecs }) {
     const now = new Date();
-    const expiresAt = getExpiresAt(client, now);
+    const expiresAt = getExpiresAt(accessTokenTtlSecs, now);
     const { value } = await (await AccessTokens).findOneAndUpdate(
       {
         token: newCode(48)
@@ -62,8 +62,8 @@ function buildMongoStore({ uri, mongodb }) {
       {
         $set: {
           authId: auth._id,
-          clientId: client._id,
-          userId: user._id,
+          clientId: auth.clientId,
+          userId: auth.userId,
           updatedAt: now,
           expiresAt
         },

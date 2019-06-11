@@ -115,14 +115,7 @@ describe('code flow', () => {
           createdAt: new Date()
         };
       },
-      newAccessToken: async ({ auth, client }) => {
-        if (
-          client.client_id !== oauthClient.client_id ||
-          client.client_secret !== oauthClient.client_secret
-        ) {
-          throw new Error('Invalid client');
-        }
-
+      newAccessToken: async () => {
         return {
           token,
           updatedAt: new Date(),

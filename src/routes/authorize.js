@@ -33,8 +33,9 @@ const encodeFragmentData = data =>
     .map(key => `${key}=${encodeURIComponent(data[key])}`)
     .join('&');
 
-function redirectWithToken(store, res, client, user, auth, state, redirectUri) {
-  return store.newAccessToken({ auth, client, user }).then(token => {
+function redirectWithToken(store, res, client, auth, state, redirectUri) {
+  const { accessTokenTtlSecs } = client;
+  return store.newAccessToken({ auth, accessTokenTtlSecs }).then(token => {
     ensureValidAccessToken(token);
     const redirectData = {
       access_token: token.token,
@@ -68,16 +69,14 @@ function authorize({ store, loginUrl }) {
       .then(client => {
         if (req.user) {
           // is authenticated
-          return Promise.all([req.user, createAuthorization(store, client, req.user, scope)]).then(
-            ([user, auth]) => {
-              if (response_type === 'code') {
-                return redirectWithCode(res, auth, redirect_uri, state);
-              }
-              // response_type === 'token'
-              ensureClientAllowsImplicitFlow(client);
-              return redirectWithToken(store, res, client, user, auth, state, redirect_uri);
+          return createAuthorization(store, client, req.user, scope).then(auth => {
+            if (response_type === 'code') {
+              return redirectWithCode(res, auth, redirect_uri, state);
             }
-          );
+            // response_type === 'token'
+            ensureClientAllowsImplicitFlow(client);
+            return redirectWithToken(store, res, client, auth, state, redirect_uri);
+          });
         }
         // is not authenticated, must login
         req.session.urlAfterLogin = req.url; // TODO: keep here?
