@@ -30,13 +30,17 @@ function buildMongoStore({ uri, mongodb }) {
     return user;
   }
 
+  async function getAccessToken(token) {
+    const accessToken = await (await AccessTokens).findOne({ token });
+    return accessToken;
+  }
+
   async function getAuthByCode(code, client) {
     const now = new Date();
     const { value } = await (await Authorizations).findOneAndUpdate(
       {
-        clientId: client._id,
-        code,
-        status: 'created'
+        clientId: client.client_id,
+        code
       },
       {
         $set: {
@@ -44,10 +48,7 @@ function buildMongoStore({ uri, mongodb }) {
           status: 'consumed'
         }
       },
-      {
-        upsert: true,
-        returnOriginal: false
-      }
+      { returnOriginal: false }
     );
     return value;
   }
@@ -56,9 +57,7 @@ function buildMongoStore({ uri, mongodb }) {
     const now = new Date();
     const expiresAt = getExpiresAt(accessTokenTtlSecs, now);
     const { value } = await (await AccessTokens).findOneAndUpdate(
-      {
-        token: newCode(48)
-      },
+      { token: newCode(48) },
       {
         $set: {
           authId: auth._id,
@@ -67,39 +66,26 @@ function buildMongoStore({ uri, mongodb }) {
           updatedAt: now,
           expiresAt
         },
-        $setOnInsert: {
-          createdAt: now
-        }
+        $setOnInsert: { createdAt: now }
       },
-      {
-        upsert: true,
-        returnOriginal: false
-      }
+      { upsert: true, returnOriginal: false }
     );
     return value;
   }
 
-  async function newAuthorization({ client, user, requestedScope }) {
+  async function newAuthorization({ client, user, scope }) {
     const now = new Date();
     const { value } = await (await Authorizations).findOneAndUpdate(
-      {
-        clientId: client._id,
-        userId: user._id
-      },
+      { clientId: client.client_id, userId: user._id },
       {
         $set: {
           updatedAt: now,
           code: newCode(),
-          scope: requestedScope || client.scopes.join(' ')
+          scope: scope || client.scopes.join(' ')
         },
-        $setOnInsert: {
-          createdAt: now
-        }
+        $setOnInsert: { createdAt: now }
       },
-      {
-        upsert: true,
-        returnOriginal: false
-      }
+      { upsert: true, returnOriginal: false }
     );
     return value;
   }
@@ -108,6 +94,7 @@ function buildMongoStore({ uri, mongodb }) {
     getClientById,
     getUserByName,
     getUserById,
+    getAccessToken,
     getAuthByCode,
     newAuthorization,
     newAccessToken

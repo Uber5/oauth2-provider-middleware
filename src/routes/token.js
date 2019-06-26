@@ -35,7 +35,7 @@ function exchangeCodeForToken(store, client, code, state) {
   return store
     .getAuthByCode(code, client)
     .then(auth => {
-      ok(auth, `auth for client ${client.key} and code ${code} not found.`);
+      ok(auth, `auth for client ${client.client_id} and code ${code} not found.`);
       return auth;
     })
     .then(auth => getToken(store, client, auth, state));
