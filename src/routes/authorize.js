@@ -34,8 +34,7 @@ const encodeFragmentData = data =>
     .join('&');
 
 function redirectWithToken(store, res, client, auth, state, redirectUri) {
-  const { accessTokenTtlSecs } = client;
-  return store.newAccessToken({ auth, accessTokenTtlSecs }).then(token => {
+  return store.newAccessToken({ auth }).then(token => {
     ensureValidAccessToken(token);
     const redirectData = {
       access_token: token.token,

@@ -2,8 +2,7 @@ const ensureValidAccessToken = require('../validation/ensure-valid-access-token'
 const { getScopeForResponse } = require('./scopes');
 
 function getToken(store, client, auth, state) {
-  const { accessTokenTtlSecs } = client;
-  return store.newAccessToken({ auth, accessTokenTtlSecs }).then(token => {
+  return store.newAccessToken({ auth }).then(token => {
     ensureValidAccessToken(token);
     const tokenInfo = {
       access_token: token.token,
