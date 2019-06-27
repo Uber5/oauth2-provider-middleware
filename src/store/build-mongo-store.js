@@ -15,7 +15,15 @@ function buildMongoStore({ uri, mongodb }) {
   const AccessTokens = db.then(_db => _db.collection('accessTokens'));
 
   async function getClientById(id) {
-    const client = await (await Clients).findOne({ client_id: id });
+    const clientFromDB = await (await Clients).findOne({ clientId: id });
+    const { clientId, clientSecret, redirectUris, scopes, customerId } = clientFromDB;
+    const client = {
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uris: redirectUris,
+      scopes,
+      customerId
+    };
     return client;
   }
 
