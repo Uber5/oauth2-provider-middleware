@@ -38,6 +38,10 @@ function buildMongoStore({ uri, mongodb }) {
     return user;
   }
 
+  async function getUserByIndentifier() {
+    throw new Error('Implementation to be done on provider');
+  }
+
   async function getAccessToken(token) {
     const accessToken = await (await AccessTokens).findOne({ token });
     return accessToken;
@@ -104,9 +108,11 @@ function buildMongoStore({ uri, mongodb }) {
   }
 
   return {
+    db,
     getClientById,
     getUserByName,
     getUserById,
+    getUserByIndentifier,
     getAccessToken,
     getAuthById,
     getAuthByCode,
