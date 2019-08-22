@@ -1,6 +1,6 @@
 {
   "name": "oauth2-provider-middleware",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Middleware implementing an OAuth2 provider, with pluggable storage",
   "main": "src",
   "scripts": {
@@ -62,5 +62,9 @@
   "dependencies": {
     "debug": "^4.1.1",
     "passport-oauth2": "^1.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uber5/oauth2-provider-middleware"
   }
 }
