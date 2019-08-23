@@ -16,8 +16,11 @@ function buildMongoStore({ uri, mongodb }) {
 
   async function getClientById(id) {
     const clientFromDB = await (await Clients).findOne({ clientId: id });
-
-    return clientFromDB;
+    const { clientId, ...props } = clientFromDB;
+    return {
+      client_id: clientId,
+      ...props
+    };
   }
 
   async function getUserByName(name) {
