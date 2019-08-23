@@ -11,8 +11,11 @@ const collections = {
   // TODO: more
 };
 
+let mongoClient;
+
 beforeAll(async () => {
-  const db = await MongoClient.connect(uri, { useNewUrlParser: true }).then(c => c.db());
+  mongoClient = await MongoClient.connect(uri, { useNewUrlParser: true });
+  const db = mongoClient.db();
   /* eslint-disable no-restricted-syntax */
   for (const c of Object.keys(collections)) {
     /* eslint-disable no-await-in-loop */
@@ -39,22 +42,29 @@ beforeAll(async () => {
   ]);
 });
 
-// afterAll(() => {
-//   return ;
-// });
+afterAll(async () => {
+  await mongoClient.close(true);
+});
 
 describe('Mongo Store', () => {
+  let store;
+  afterEach(async () => {
+    if (store) {
+      (await store.mongoClient).close(true);
+      store = null;
+    }
+  });
   it('fails without params', () => {
     expect(buildMongoStore).toThrow(/uri/);
   });
   it('succeeds with params', () => {
-    const store = buildMongoStore({ uri, mongodb });
+    store = buildMongoStore({ uri, mongodb });
     expect(store.db).toBeTruthy();
     expect(store.getClientById).toBeTruthy();
   });
   describe('getClientById', () => {
     it('maps properties as expected for client_id 123', async () => {
-      const store = buildMongoStore({ uri, mongodb });
+      store = buildMongoStore({ uri, mongodb });
       const client = await store.getClientById('123');
       expect(client.client_id).toBe('123');
       expect(client.redirect_uris).toEqual(['bla', 'blu']);
@@ -62,7 +72,7 @@ describe('Mongo Store', () => {
       expect(client.scopes).toEqual(['scope1', 'scope2']);
     });
     it('maps properties as expected for client_id 321', async () => {
-      const store = buildMongoStore({ uri, mongodb });
+      store = buildMongoStore({ uri, mongodb });
       const client = await store.getClientById('321');
       expect(client.client_id).toBe('321');
       expect(client.redirect_uris).toEqual(['ble', 'bli']);
@@ -70,7 +80,7 @@ describe('Mongo Store', () => {
       expect(client.scopes).toEqual(['scope']);
     });
     // it('check for exisiting client', async () => {
-    //   const store = buildMongoStore({ uri, mongodb });
+    //   store = buildMongoStore({ uri, mongodb });
     //   const client = await store.getClientById('456')
     //   // expect(client.client_id).toBeFalsely();
     // })

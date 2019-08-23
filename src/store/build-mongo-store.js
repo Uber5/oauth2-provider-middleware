@@ -8,7 +8,8 @@ function getExpiresAt(now) {
 
 function buildMongoStore({ uri, mongodb }) {
   const { ObjectId, MongoClient } = mongodb;
-  const db = MongoClient.connect(uri, { useNewUrlParser: true }).then(c => c.db());
+  const mongoClient = MongoClient.connect(uri, { useNewUrlParser: true });
+  const db = mongoClient.then(c => c.db());
   const Clients = db.then(_db => _db.collection('clients'));
   const Users = db.then(_db => _db.collection('users'));
   const Authorizations = db.then(_db => _db.collection('authorizations'));
@@ -106,6 +107,7 @@ function buildMongoStore({ uri, mongodb }) {
 
   return {
     db,
+    mongoClient,
     getClientById,
     getUserByName,
     getUserById,
