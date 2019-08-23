@@ -4,7 +4,8 @@
   "description": "Middleware implementing an OAuth2 provider, with pluggable storage",
   "main": "src",
   "scripts": {
-    "test": "jest",
+    "test": "jest --rootDir src",
+    "test-mongostore": "jest --rootDir test/mongo-store",
     "dev": "concurrently \"npm:watch-*\"",
     "watch-prettier": "onchange '**/!(__generated__)/*.js' -- prettier --write {{changed}}",
     "watch-eslint": "onchange '**/!(__generated__)/*.js' -- eslint {{changed}}",
