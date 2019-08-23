@@ -22,7 +22,15 @@ beforeAll(async () => {
   await db.collection('clients').insertMany([
     {
       clientId: '123',
-      redirectUris: ['bla', 'blu']
+      redirectUris: ['bla', 'blu'],
+      implicitFlow: true,
+      scopes: ['scope1', 'scope2']
+    },
+    {
+      clientId: '321',
+      redirectUris: ['ble', 'bli'],
+      implicitFlow: false,
+      scopes: ['scope']
     },
     {
       clientId: '125',
@@ -30,6 +38,10 @@ beforeAll(async () => {
     }
   ]);
 });
+
+// afterAll(() => {
+//   return ;
+// });
 
 describe('Mongo Store', () => {
   it('fails without params', () => {
@@ -41,11 +53,26 @@ describe('Mongo Store', () => {
     expect(store.getClientById).toBeTruthy();
   });
   describe('getClientById', () => {
-    it('maps properties as expected', async () => {
+    it('maps properties as expected for client_id 123', async () => {
       const store = buildMongoStore({ uri, mongodb });
       const client = await store.getClientById('123');
       expect(client.client_id).toBe('123');
       expect(client.redirect_uris).toEqual(['bla', 'blu']);
+      expect(client.implicitFlow).toBe(true);
+      expect(client.scopes).toEqual(['scope1', 'scope2']);
     });
+    it('maps properties as expected for client_id 321', async () => {
+      const store = buildMongoStore({ uri, mongodb });
+      const client = await store.getClientById('321');
+      expect(client.client_id).toBe('321');
+      expect(client.redirect_uris).toEqual(['ble', 'bli']);
+      expect(client.implicitFlow).toBe(false);
+      expect(client.scopes).toEqual(['scope']);
+    });
+    // it('check for exisiting client', async () => {
+    //   const store = buildMongoStore({ uri, mongodb });
+    //   const client = await store.getClientById('456')
+    //   // expect(client.client_id).toBeFalsely();
+    // })
   });
 });
