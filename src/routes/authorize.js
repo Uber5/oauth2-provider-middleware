@@ -55,7 +55,14 @@ function redirectWithToken(store, res, client, auth, state, redirectUri) {
 function authorize({ store, loginUrl }) {
   return (req, res, next) => {
     ensureValidAuthorizeRequest(req);
-    const { redirect_uri, response_type, state, scope } = req.query;
+    const {
+      redirect_uri,
+      response_type,
+      state,
+      scope,
+      code_challenge,
+      code_challenge_method
+    } = req.query;
     store
       .getClientById(req.query.client_id)
       .then(client => {
@@ -70,6 +77,13 @@ function authorize({ store, loginUrl }) {
           // is authenticated
           return createAuthorization(store, client, req.user, scope).then(auth => {
             if (response_type === 'code') {
+              if (client.pkceFlow) {
+                ok(code_challenge, 'code challenge required');
+                ok(code_challenge_method, 'code challenge method required');
+                ok(code_challenge_method !== 'S256', 'only code challenge method S256 accepted');
+                // eslint-disable-next-line no-param-reassign
+                auth.codeChallenge = code_challenge;
+              }
               return redirectWithCode(res, auth, redirect_uri, state);
             }
             // response_type === 'token'

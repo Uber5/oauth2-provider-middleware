@@ -36,6 +36,10 @@ function exchangeCodeForToken(store, client, code, state) {
     .getAuthByCode(code, client)
     .then(auth => {
       ok(auth, `auth for client ${client.client_id} and code ${code} not found.`);
+      if (client.pckeFlow) {
+        // code verification
+        // const encryptedCodeVerifier =
+      }
       return auth;
     })
     .then(auth => getToken(store, client, auth, state));
@@ -43,7 +47,7 @@ function exchangeCodeForToken(store, client, code, state) {
 
 function token({ store }) {
   return (req, res, next) => {
-    const { code, grant_type, state, client_id, client_secret } = req.body;
+    const { code, grant_type, state, client_id, client_secret, code_verifier } = req.body;
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
