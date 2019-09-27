@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 const { ok } = require('assert');
 const getToken = require('../lib/get-token');
+const hashCodeVerifier = require('../lib/hash-code-verifier');
 
 function extractCredentialsFromHeaderValue(value) {
   const match = value.match(/^Basic (.+)$/);
@@ -30,7 +31,7 @@ function getClientOnTokenRequest(authHeader, store) {
   return getClientById(store, credentials.client_id, credentials.secret);
 }
 
-function exchangeCodeForToken(store, client, code, state) {
+function exchangeCodeForToken(store, client, code, state, code_verifier) {
   ok(code, 'code" is required but missing');
   return store
     .getAuthByCode(code, client)
@@ -38,7 +39,7 @@ function exchangeCodeForToken(store, client, code, state) {
       ok(auth, `auth for client ${client.client_id} and code ${code} not found.`);
       if (client.pckeFlow) {
         // code verification
-        // const encryptedCodeVerifier =
+        const hashedVarifier = hashCodeVerifier(code_verifier);
       }
       return auth;
     })
@@ -55,9 +56,11 @@ function token({ store }) {
     return clientPromise
       .then(client => {
         if (grant_type === 'authorization_code') {
-          return exchangeCodeForToken(store, client, code, state).then(accessToken => {
-            res.send(accessToken);
-          });
+          return exchangeCodeForToken(store, client, code, state, code_verifier).then(
+            accessToken => {
+              res.send(accessToken);
+            }
+          );
         }
         // TODO: need to support other grant types
         throw new Error('Grant type not implemented');
