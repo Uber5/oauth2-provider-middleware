@@ -37,13 +37,12 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
     .getAuthByCode(code, client)
     .then(auth => {
       ok(auth, `auth for client ${client.client_id} and code ${code} not found.`);
-      if (client.pckeFlow) {
+      if (client.pkceFlow) {
         // code verification
         const hashedVarifier = hashCodeVerifier(code_verifier);
-        if (auth.code_challenge === hashedVarifier) {
-          return auth;
+        if (auth.codeChallenge !== hashedVarifier) {
+          throw new Error('Code verifier does not match');
         }
-        throw new Error('Code verifier does not match');
       }
       return auth;
     })
