@@ -40,6 +40,10 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
       if (client.pckeFlow) {
         // code verification
         const hashedVarifier = hashCodeVerifier(code_verifier);
+        if (auth.code_challenge === hashedVarifier) {
+          return auth;
+        }
+        throw new Error('Code verifier does not match');
       }
       return auth;
     })
