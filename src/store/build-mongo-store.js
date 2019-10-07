@@ -88,13 +88,14 @@ function buildMongoStore({ uri, mongodb }) {
     return value;
   }
 
-  async function newAuthorization({ client, user, scope }) {
+  async function newAuthorization({ client, user, scope, codeChallenge }) {
     const now = new Date();
     const { value } = await (await Authorizations).findOneAndUpdate(
       { clientId: client.client_id, userId: user._id },
       {
         $set: {
           updatedAt: now,
+          code_challenge: codeChallenge,
           code: newCode(),
           scope: scope || client.scopes.join(' ')
         },

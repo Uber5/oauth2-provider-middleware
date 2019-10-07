@@ -1,10 +1,13 @@
-const base64url = require('base64url');
 const sha256 = require('js-sha256');
 
 module.exports = codeVerifier => {
   let asciiCode = '';
   codeVerifier.split('').forEach(char => {
-    asciiCode += char.charCodeAt(0);
+    asciiCode = `${asciiCode + char.charCodeAt(0)} `;
   });
-  return base64url(sha256(asciiCode));
+  const hashed = sha256(asciiCode);
+
+  // eslint-disable-next-line no-buffer-constructor
+  const encoded = new Buffer(hashed, 'utf-8').toString('base64');
+  return encoded;
 };

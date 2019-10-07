@@ -1,4 +1,4 @@
-function createAuthorization(store, client, user, scope) {
-  return store.newAuthorization({ client, user, scope });
+function createAuthorization(store, client, user, scope, codeChallenge) {
+  return store.newAuthorization({ client, user, scope, codeChallenge });
 }
 module.exports = createAuthorization;

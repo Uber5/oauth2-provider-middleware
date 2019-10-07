@@ -75,15 +75,17 @@ function authorize({ store, loginUrl }) {
       .then(client => {
         if (req.user) {
           // is authenticated
-          return createAuthorization(store, client, req.user, scope).then(auth => {
+          return createAuthorization(store, client, req.user, scope, code_challenge).then(auth => {
             if (response_type === 'code') {
+              console.log('authorize, req.user', req.user, client.pkceFlow);
               if (client.pkceFlow) {
                 ok(code_challenge, 'code challenge required');
                 ok(code_challenge_method, 'code challenge method required');
-                ok(code_challenge_method !== 'S256', 'only code challenge method S256 accepted');
+                ok(code_challenge_method === 'S256', 'only code challenge method S256 accepted');
                 // eslint-disable-next-line no-param-reassign
-                auth.codeChallenge = code_challenge;
+                console.log('authorize, pkce, all good');
               }
+              console.log('authorize, redirecting');
               return redirectWithCode(res, auth, redirect_uri, state);
             }
             // response_type === 'token'
