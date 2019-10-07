@@ -41,8 +41,6 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
         // code verification
         ok(code_verifier, 'code verifier is required');
         const hashedVarifier = hashCodeVerifier(code_verifier);
-        console.log('hashedVarifier ', hashedVarifier);
-        console.log('auth code challenge ', auth.code_challenge);
         if (auth.code_challenge !== hashedVarifier) {
           throw new Error('Code verifier does not match');
         }
@@ -55,8 +53,6 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
 function token({ store }) {
   return (req, res, next) => {
     const { code, grant_type, state, client_id, client_secret, code_verifier } = req.body;
-    console.log('hitting the token endpoint');
-
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
