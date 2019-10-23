@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 const { ok } = require('assert');
 const getToken = require('../lib/get-token');
+const hashCodeVerifier = require('../lib/hash-code-verifier');
 
 function extractCredentialsFromHeaderValue(value) {
   const match = value.match(/^Basic (.+)$/);
@@ -30,12 +31,20 @@ function getClientOnTokenRequest(authHeader, store) {
   return getClientById(store, credentials.client_id, credentials.secret);
 }
 
-function exchangeCodeForToken(store, client, code, state) {
+function exchangeCodeForToken(store, client, code, state, code_verifier) {
   ok(code, 'code" is required but missing');
   return store
     .getAuthByCode(code, client)
     .then(auth => {
       ok(auth, `auth for client ${client.client_id} and code ${code} not found.`);
+      if (client.pkceFlow) {
+        // code verification
+        ok(code_verifier, 'code verifier is required');
+        const hashedVarifier = hashCodeVerifier(code_verifier);
+        if (auth.code_challenge !== hashedVarifier) {
+          throw new Error('Code verifier does not match');
+        }
+      }
       return auth;
     })
     .then(auth => getToken(store, client, auth, state));
@@ -43,7 +52,7 @@ function exchangeCodeForToken(store, client, code, state) {
 
 function token({ store }) {
   return (req, res, next) => {
-    const { code, grant_type, state, client_id, client_secret } = req.body;
+    const { code, grant_type, state, client_id, client_secret, code_verifier } = req.body;
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
@@ -51,9 +60,11 @@ function token({ store }) {
     return clientPromise
       .then(client => {
         if (grant_type === 'authorization_code') {
-          return exchangeCodeForToken(store, client, code, state).then(accessToken => {
-            res.send(accessToken);
-          });
+          return exchangeCodeForToken(store, client, code, state, code_verifier).then(
+            accessToken => {
+              res.send(accessToken);
+            }
+          );
         }
         // TODO: need to support other grant types
         throw new Error('Grant type not implemented');

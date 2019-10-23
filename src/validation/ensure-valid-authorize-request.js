@@ -4,7 +4,15 @@ const { ok } = require('assert');
 const responseTypes = ['token', 'code'];
 
 module.exports = req => {
-  const { client_id, redirect_uri, response_type, state, ...otherParams } = req.query;
+  const {
+    client_id,
+    redirect_uri,
+    response_type,
+    state,
+    code_challenge,
+    code_challenge_method,
+    ...otherParams
+  } = req.query;
   ok(client_id, 'client_id is required but missing');
   ok(redirect_uri, 'redirect_uri is required but missing');
   ok(
