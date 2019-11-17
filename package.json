@@ -11,6 +11,7 @@
     "watch-eslint": "onchange '**/!(__generated__)/*.js' -- eslint {{changed}}",
     "watch-test": "npm run test -- --watch",
     "sample": "nodemon sample",
+    "prepublishOnly": "npm run test && npm run test-mongostore",
     "sample-client": "nodemon sample-client"
   },
   "keywords": [
@@ -36,8 +37,8 @@
     "jest": "^24.5.0",
     "lint-staged": "^8.1.5",
     "mongodb": "^3.2.2",
-    "nodemon": "^1.18.10",
-    "onchange": "^5.2.0",
+    "nodemon": "^1.19.4",
+    "onchange": "^6.1.0",
     "passport": "^0.4.0",
     "passport-facebook": "^3.0.0",
     "passport-local": "^1.0.0",
