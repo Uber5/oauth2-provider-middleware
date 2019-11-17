@@ -13,7 +13,7 @@ function buildCodeClient({ provider, client }) {
   app.use(passport.session()); // Used to persist login sessions
   // eslint-disable-next-line camelcase
   const { client_id, client_secret, redirect_uris } = client;
-  const redirectUri = redirect_uris[0];
+  const redirectUri = redirect_uris[0]; // TODO: we have a chicken&egg problem with the client port
   // Strategy config
   passport.use(
     'oauth2',
