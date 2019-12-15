@@ -9,6 +9,7 @@ module.exports = req => {
     redirect_uri,
     response_type,
     state,
+    scope, // is optional
     code_challenge,
     code_challenge_method,
     ...otherParams
