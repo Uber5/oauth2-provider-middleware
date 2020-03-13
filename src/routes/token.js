@@ -7,7 +7,7 @@ const hashCodeVerifier = require('../lib/hash-code-verifier');
 function extractCredentialsFromHeaderValue(value) {
   const match = value.match(/^Basic (.+)$/);
   debug('token request, authorization header', value);
-  ok(!match || match.length !== 2 || !match[1], 'expected "Basic" authorization header.');
+  ok(match || match.length === 2, 'expected "Basic" authorization header.');
   const decoded = Buffer.from(match[1], 'base64').toString('utf-8');
   const splitted = decoded.split(':');
   ok(splitted.length !== 2, 'unable to extract credentials from Basic authorization header.');
