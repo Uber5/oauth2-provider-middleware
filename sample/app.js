@@ -46,7 +46,6 @@ function buildApp({ store }) {
       if (err) {
         return next(err);
       }
-      console.log('authenticate local, info', info);
       if (!user) {
         return res.render('login', info);
       }

@@ -10,7 +10,6 @@ function isValidPasswordFn(password, hashed) {
 function configurePassport(passport, store) {
   passport.use(
     new LocalStrategy(function(username, password, done) {
-      console.log('LocalStrategy', username, password);
       store.getUserByName(username).then(user => {
         if (!user || !isValidPasswordFn(password, user.password)) {
           return done(null, false, { message: 'Invalid login credentials.' });

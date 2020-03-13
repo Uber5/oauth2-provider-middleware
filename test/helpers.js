@@ -8,13 +8,16 @@ const tryToListenOnPort = (app, port) =>
   new Promise(res =>
     app
       .listen(port)
-      .on('error', () => res(false))
+      .on('error', err => {
+        console.log('trying to listen on port, ERR', port, err);
+        res(false);
+      })
       .on('listening', () => res(true))
   );
 
 async function runSampleServer({ store }) {
   const app = buildApp({ store });
-  let port = 2999;
+  let port = 3005;
   /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
   while (!(await tryToListenOnPort(app, ++port))) {}
   return { app, port };
@@ -22,17 +25,21 @@ async function runSampleServer({ store }) {
 
 async function runSampleClient({ provider, clientId }) {
   const app = buildClient({ provider, clientId });
-  let port = 2999;
+  let port = 3005;
   /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
   while (!(await tryToListenOnPort(app, ++port))) {}
   return { app, port };
 }
 
-async function runCodeSampleClient({ provider, client }) {
+async function runCodeSampleClient({ provider, client, requestedPort }) {
   const app = buildCodeClient({ provider, client });
-  let port = 2999;
+  const port = requestedPort || 3005;
   /* eslint-disable-next-line no-await-in-loop, no-plusplus, no-empty */
-  while (!(await tryToListenOnPort(app, ++port))) {}
+  while (!(await tryToListenOnPort(app, port))) {
+    if (requestedPort) {
+      throw new Error(`requestedPort ${requestedPort} not available`);
+    }
+  }
   return { app, port };
 }
 
