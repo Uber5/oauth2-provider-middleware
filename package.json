@@ -1,6 +1,6 @@
 {
   "name": "oauth2-provider-middleware",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Middleware implementing an OAuth2 provider, with pluggable storage",
   "main": "src",
   "scripts": {
