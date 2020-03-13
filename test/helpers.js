@@ -9,7 +9,6 @@ const tryToListenOnPort = (app, port) =>
     app
       .listen(port)
       .on('error', err => {
-        console.log('trying to listen on port, ERR', port, err);
         res(false);
       })
       .on('listening', () => res(true))

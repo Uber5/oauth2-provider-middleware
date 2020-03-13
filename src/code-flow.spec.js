@@ -115,7 +115,7 @@ describe('code flow', () => {
     oauthClient.redirect_uris.push(`http://localhost:3001/logged-in`);
     const client = await runCodeSampleClient({
       provider: `http://localhost:${provider.port}`,
-      client: oauthClient,
+      client: { ...oauthClient, client_secret: oauthClient.secret },
       requestedPort: 3001
     });
 
