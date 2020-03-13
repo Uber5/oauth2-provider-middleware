@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 const { ok } = require('assert');
-const debug = require('debug')('oauth2-provider-middleware:authorize');
+const debug = require('debug')('oauth2-provider-middleware:token');
 const getToken = require('../lib/get-token');
 const hashCodeVerifier = require('../lib/hash-code-verifier');
 
