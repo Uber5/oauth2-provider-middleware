@@ -57,6 +57,7 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
 function token({ store }) {
   return (req, res, next) => {
     const { code, grant_type, state, client_id, client_secret, code_verifier } = req.body;
+    debug('token request, body', req.body);
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
