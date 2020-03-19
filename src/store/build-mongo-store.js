@@ -14,6 +14,7 @@ function buildMongoStore({ uri, mongodb }) {
   const Users = db.then(_db => _db.collection('users'));
   const Authorizations = db.then(_db => _db.collection('authorizations'));
   const AccessTokens = db.then(_db => _db.collection('accessTokens'));
+  const RefreshTokens = db.then(_db => _db.collection('refreshTokens'));
 
   async function getClientById(id) {
     const clientFromDB = await (await Clients).findOne({ clientId: id });
@@ -45,6 +46,11 @@ function buildMongoStore({ uri, mongodb }) {
     return accessToken;
   }
 
+  async function getRefreshToken(token) {
+    const refreshToken = await (await RefreshTokens).findOne({ token, status: 'created' });
+    return refreshToken;
+  }
+
   async function getAuthById(id) {
     const auth = await (await Authorizations).findOne({ _id: ObjectId(id) });
     return auth;
@@ -68,6 +74,23 @@ function buildMongoStore({ uri, mongodb }) {
     return value;
   }
 
+  async function invalidateRefreshToken(token, authId) {
+    const { value } = await (await RefreshTokens).findOneAndUpdate(
+      {
+        token,
+        authId
+      },
+      {
+        $set: {
+          updatedAt: new Date(),
+          status: 'consumed'
+        }
+      },
+      { returnOriginal: false }
+    );
+    return value;
+  }
+
   async function newAccessToken({ auth }) {
     const now = new Date();
     const expiresAt = getExpiresAt(now);
@@ -80,6 +103,22 @@ function buildMongoStore({ uri, mongodb }) {
           userId: auth.userId,
           updatedAt: now,
           expiresAt
+        },
+        $setOnInsert: { createdAt: now }
+      },
+      { upsert: true, returnOriginal: false }
+    );
+    return value;
+  }
+  async function newRefreshToken({ auth }) {
+    const now = new Date();
+    const { value } = await (await RefreshTokens).findOneAndUpdate(
+      { token: newCode(32) },
+      {
+        $set: {
+          authId: auth._id,
+          scope: auth.scope,
+          status: 'created'
         },
         $setOnInsert: { createdAt: now }
       },
@@ -114,10 +153,13 @@ function buildMongoStore({ uri, mongodb }) {
     getUserById,
     getUserByIndentifier,
     getAccessToken,
+    getRefreshToken,
     getAuthById,
     getAuthByCode,
     newAuthorization,
-    newAccessToken
+    newAccessToken,
+    newRefreshToken,
+    invalidateRefreshToken
   };
 }
 

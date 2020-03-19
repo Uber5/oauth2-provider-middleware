@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 const { ok } = require('assert');
 const debug = require('debug')('oauth2-provider-middleware:token');
@@ -10,7 +11,7 @@ function extractCredentialsFromHeaderValue(value) {
   ok(match || match.length === 2, 'expected "Basic" authorization header.');
   const decoded = Buffer.from(match[1], 'base64').toString('utf-8');
   const splitted = decoded.split(':');
-  ok(splitted.length !== 2, 'unable to extract credentials from Basic authorization header.');
+  ok(splitted.length === 2, 'unable to extract credentials from Basic authorization header.');
   return { client_id: splitted[0], secret: splitted[1] };
 }
 
@@ -34,7 +35,7 @@ function getClientOnTokenRequest(authHeader, store) {
 }
 
 function exchangeCodeForToken(store, client, code, state, code_verifier) {
-  ok(code, 'code" is required but missing');
+  ok(code, 'code is required but missing');
   return store
     .getAuthByCode(code, client)
     .then(auth => {
@@ -52,9 +53,32 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
     .then(auth => getToken(store, client, auth, state));
 }
 
+async function exchangeRefreshTokenForToken(store, client, state, refresh_token) {
+  ok(refresh_token, 'refresh token is required but missing');
+  const refreshToken = await store.getRefreshToken(refresh_token);
+  ok(refreshToken, 'refresh token not found or expired');
+  const auth = await store.getAuthById(refreshToken.authId);
+  ok(auth, 'no auth matches the token');
+  ok(auth.clientId === client._id, 'refresh token does not belong to client');
+  store.invalidateRefreshToken(refreshToken.token, auth._id);
+  const updatedRefreshToken = await store.getRefreshToken(refreshToken._id);
+  ok(updatedRefreshToken.status === 'consumed', 'refresh token could not be used');
+  const accessToken = await getToken(store, client, auth, state);
+  ok(accessToken, 'something went wrong, cannot create token');
+  return accessToken;
+}
+
 function token({ store }) {
   return (req, res, next) => {
-    const { code, grant_type, state, client_id, client_secret, code_verifier } = req.body;
+    const {
+      code,
+      grant_type,
+      state,
+      client_id,
+      client_secret,
+      code_verifier,
+      refresh_token
+    } = req.body;
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
@@ -68,7 +92,14 @@ function token({ store }) {
             }
           );
         }
-        // TODO: need to support other grant types
+        if (grant_type === 'refresh_token') {
+          return exchangeRefreshTokenForToken(store, client, state, refresh_token).then(
+            accessToken => {
+              res.send(accessToken);
+            }
+          );
+        }
+        // TODO: need to support other grant types => this might be resolved with refresh token implemented
         throw new Error('Grant type not implemented');
       })
       .catch(err => next(err));
