@@ -10,7 +10,6 @@ function buildRouter({ express, store, errorHandler, loginUrl }) {
 
   // TODO: remove, as unnecessary
   router.get('/login', (req, res, next) => {
-    global.console.log('login... but we just call next...');
     next();
   });
 

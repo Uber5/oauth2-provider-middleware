@@ -10,15 +10,17 @@ function extractCredentialsFromHeaderValue(value) {
   debug('token request, authorization header', value);
   ok(match || match.length === 2, 'expected "Basic" authorization header.');
   const decoded = Buffer.from(match[1], 'base64').toString('utf-8');
+  debug('token request, decoded', decoded);
   const splitted = decoded.split(':');
   ok(splitted.length === 2, 'unable to extract credentials from Basic authorization header.');
   return { client_id: splitted[0], secret: splitted[1] };
 }
 
 function getClientById(store, clientId, clientSecret) {
+  ok(clientId && clientSecret, 'clientId or clientSecret missing');
   return store.getClientById(clientId).then(client => {
     ok(client, `client with id ${clientId} not found.`);
-    ok(client.secret !== clientSecret, `incorrect secret for client ${clientId}`);
+    ok(client.secret === clientSecret, `incorrect secret for client ${clientId}`);
     return client;
   });
 }
@@ -79,6 +81,7 @@ function token({ store }) {
       code_verifier,
       refresh_token
     } = req.body;
+    debug('token request, body', req.body);
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
@@ -107,3 +110,4 @@ function token({ store }) {
 }
 
 module.exports = token;
+module.exports.getClientOnTokenRequest = getClientOnTokenRequest;

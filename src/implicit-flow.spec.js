@@ -10,7 +10,6 @@ const getLoggedInElemText = async page => page.$eval('#logged-in', el => el.inne
 const isLoggedInOnPage = async page => {
   try {
     const loggedInElemText = await getLoggedInElemText(page);
-    console.log('loggedInElem loggedInElemText', loggedInElemText);
     return true;
   } catch (e) {
     return false;
@@ -25,7 +24,6 @@ const getLoginDetails = async page => {
       const [name, value] = line.split('=');
       return Object.assign({}, details, { [name]: value });
     }, {});
-  console.log('getLoginDetails', result);
   return result;
 };
 
@@ -33,7 +31,7 @@ describe('implicit flow', () => {
   it('logs me in', async () => {
     const oauthClient = {
       client_id: createRandomId(),
-      client_secret: 'the secret',
+      secret: 'the secret',
       implicitFlow: true,
       redirect_uris: [],
       scopes: ['scope1', 'scope2', 'scope3']
@@ -45,7 +43,6 @@ describe('implicit flow', () => {
       password: encryptPassword(plainPassword)
     };
     const token = newCode();
-    console.log('token ', token);
     const store = {
       getClientById: async clientId => {
         if (clientId !== oauthClient.client_id) {
@@ -117,5 +114,5 @@ describe('implicit flow', () => {
     expect(loginDetails.expires_in > 0).toBe(true);
     expect(loginDetails.scope).toMatch(/scope1/);
     await browser.close();
-  }, 60000);
+  }, 10000);
 });
