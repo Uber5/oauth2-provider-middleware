@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const encryptPassword = require('./lib/encrypt-password');
 const {
@@ -26,6 +27,7 @@ const isLoggedInOnPage = async page => {
 describe('code flow', () => {
   it('logs me in', async () => {
     const oauthClient = {
+      _id: Math.random(),
       client_id: createRandomId(),
       secret: 'the secret',
       redirect_uris: [],
@@ -40,7 +42,8 @@ describe('code flow', () => {
 
     const { _id } = userInfo;
     const code = newCode();
-    const token = newCode();
+    const accessToken = newCode();
+    const refreshToken = newCode();
     const store = {
       getClientById: async clientId => {
         if (clientId !== oauthClient.client_id) {
@@ -105,9 +108,17 @@ describe('code flow', () => {
       },
       newAccessToken: async () => {
         return {
-          token,
+          accessToken,
           updatedAt: new Date(),
           expiresAt: new Date(new Date().getTime() + 10000)
+        };
+      },
+      newRefreshToken: async () => {
+        return {
+          token: refreshToken,
+          status: 'created',
+          authId: oauthClient._id,
+          scope: oauthClient.scope
         };
       }
     };
