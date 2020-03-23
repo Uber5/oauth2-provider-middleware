@@ -4,14 +4,14 @@ const StoreError = require('../lib/store-error');
 
 module.exports = client => {
   try {
-    const { client_id, redirect_uris, scopes, secret } = client;
+    const { client_id, redirect_uris, scopes, clientSecret } = client;
     ok(client_id, 'client_id is required but missing');
     ok(
       redirect_uris && redirect_uris instanceof Array,
       'redirect_uris is required but missing or invalid'
     );
     ok(scopes && scopes instanceof Array, 'scopes is required but missing or invalid');
-    ok(secret, 'missing or invalid client secret');
+    ok(clientSecret, 'missing or invalid client secret');
   } catch (e) {
     throw new StoreError(e.message);
   }

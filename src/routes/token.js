@@ -20,7 +20,7 @@ function getClientById(store, clientId, clientSecret) {
   ok(clientId && clientSecret, 'clientId or clientSecret missing');
   return store.getClientById(clientId).then(client => {
     ok(client, `client with id ${clientId} not found.`);
-    ok(client.secret === clientSecret, `incorrect secret for client ${clientId}`);
+    ok(client.clientSecret === clientSecret, `incorrect secret for client ${clientId}`);
     return client;
   });
 }
@@ -32,8 +32,7 @@ function getClientOnTokenRequest(authHeader, store) {
     credentials,
     `unable to extract credentials, see https://tools.ietf.org/html/rfc6749#section-2.3)`
   );
-
-  return getClientById(store, credentials.client_id, credentials.secret);
+  return getClientById(store, credentials.client_id, credentials.clientSecret);
 }
 
 function exchangeCodeForToken(store, client, code, state, code_verifier) {
