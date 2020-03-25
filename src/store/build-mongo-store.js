@@ -18,6 +18,7 @@ function buildMongoStore({ uri, mongodb }) {
 
   async function getClientById(id) {
     const clientFromDB = await (await Clients).findOne({ clientId: id });
+    console.log('clientFromDB', clientFromDB);
     const { clientId, redirectUris, ...props } = clientFromDB;
     return {
       client_id: clientId,
@@ -46,8 +47,8 @@ function buildMongoStore({ uri, mongodb }) {
     return accessToken;
   }
 
-  async function getRefreshToken(token) {
-    const refreshToken = await (await RefreshTokens).findOne({ token, status: 'created' });
+  async function getRefreshToken(token, status) {
+    const refreshToken = await (await RefreshTokens).findOne({ token, status });
     return refreshToken;
   }
 

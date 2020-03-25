@@ -9,7 +9,7 @@ async function getToken(store, client, auth, state) {
   ensureValidAccessToken(accessToken);
   const tokenInfo = {
     access_token: accessToken.token,
-    refreshToken: refreshToken.token,
+    refresh_token: refreshToken.token,
     token_type: 'token',
     expires_in: Math.floor(
       (new Date(accessToken.expiresAt).getTime() - new Date(accessToken.updatedAt)) / 1000

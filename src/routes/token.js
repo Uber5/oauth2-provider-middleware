@@ -32,6 +32,7 @@ function getClientOnTokenRequest(authHeader, store) {
     credentials,
     `unable to extract credentials, see https://tools.ietf.org/html/rfc6749#section-2.3)`
   );
+  console.log('credentials', credentials);
   return getClientById(store, credentials.client_id, credentials.clientSecret);
 }
 
@@ -56,13 +57,16 @@ function exchangeCodeForToken(store, client, code, state, code_verifier) {
 
 async function exchangeRefreshTokenForToken(store, client, state, refresh_token) {
   ok(refresh_token, 'refresh token is required but missing');
-  const refreshToken = await store.getRefreshToken(refresh_token);
+  console.log('refresh token ', refresh_token);
+  const refreshToken = await store.getRefreshToken(refresh_token, 'created');
+  console.log('refresh token from db', refreshToken);
   ok(refreshToken, 'refresh token not found or expired');
   const auth = await store.getAuthById(refreshToken.authId);
   ok(auth, 'no auth matches the token');
-  ok(auth.clientId === client._id, 'refresh token does not belong to client');
-  store.invalidateRefreshToken(refreshToken.token, auth._id);
-  const updatedRefreshToken = await store.getRefreshToken(refreshToken._id);
+  ok(auth.clientId === client.client_id, 'refresh token does not belong to client');
+  await store.invalidateRefreshToken(refreshToken.token, auth._id);
+  const updatedRefreshToken = await store.getRefreshToken(refreshToken.token, 'consumed');
+  console.log('consumed token', updatedRefreshToken);
   ok(updatedRefreshToken.status === 'consumed', 'refresh token could not be used');
   const accessToken = await getToken(store, client, auth, state);
   ok(accessToken, 'something went wrong, cannot create token');
@@ -81,12 +85,14 @@ function token({ store }) {
       refresh_token
     } = req.body;
     debug('token request, body', req.body);
+    console.log('clientId ', client_id);
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
 
     return clientPromise
       .then(client => {
+        console.log('grant_type', grant_type);
         if (grant_type === 'authorization_code') {
           return exchangeCodeForToken(store, client, code, state, code_verifier).then(
             accessToken => {
