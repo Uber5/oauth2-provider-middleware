@@ -114,7 +114,7 @@ function buildMongoStore({ uri, mongodb }) {
   async function newRefreshToken({ auth }) {
     const now = new Date();
     const { value } = await (await RefreshTokens).findOneAndUpdate(
-      { token: newCode(32) },
+      { token: newCode(48) },
       {
         $set: {
           authId: auth._id,
