@@ -29,7 +29,7 @@ describe('code flow', () => {
     const oauthClient = {
       _id: Math.random(),
       client_id: createRandomId(),
-      secret: 'the secret',
+      clientSecret: 'the secret',
       redirect_uris: [],
       scopes: ['scope1', 'scope2', 'scope3']
     };
@@ -126,7 +126,7 @@ describe('code flow', () => {
     oauthClient.redirect_uris.push(`http://localhost:3001/logged-in`);
     const client = await runCodeSampleClient({
       provider: `http://localhost:${provider.port}`,
-      client: { ...oauthClient, client_secret: oauthClient.secret },
+      client: { ...oauthClient, client_secret: oauthClient.clientSecret },
       requestedPort: 3001
     });
 

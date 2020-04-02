@@ -31,7 +31,7 @@ describe('implicit flow', () => {
   it('logs me in', async () => {
     const oauthClient = {
       client_id: createRandomId(),
-      secret: 'the secret',
+      clientSecret: 'the secret',
       implicitFlow: true,
       redirect_uris: [],
       scopes: ['scope1', 'scope2', 'scope3']

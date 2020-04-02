@@ -9,11 +9,12 @@ describe('getClientOnTokenRequest', () => {
       getClientById: async clientId => {
         if (clientId !== '234') throw new Error('oops');
         return {
-          secret: '345'
+          client_id: id,
+          clientSecret: secret
         };
       }
     };
     const result = await getClientOnTokenRequest(authorization, store);
-    expect(result.secret).toBeTruthy();
+    expect(result.clientSecret).toBeTruthy();
   });
 });
