@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const axios = require('axios');
 const ensureValidAccessToken = require('../validation/ensure-valid-access-token');
 const ensureValidRefreshToken = require('../validation/ensure-valid-refresh-token.js');
 const { getScopeForResponse } = require('./scopes');
