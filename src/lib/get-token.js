@@ -27,27 +27,32 @@ async function getToken(store, client, auth, state) {
     const secret = process.env.SECRET || 'uber5';
     const now = new Date();
     const { identifiers } = await store.getUserById(auth.userId);
-    let email;
-    try {
-      const response = await axios.get({
-        url: `${provider}/userinfo`,
-        headers: {
-          Authorization: `Bearer ${accessToken.Token}`
-        }
-      });
-      // { email }  = response.profile
-      console.log('response', response);
-    } catch (err) {
-      console.error('err');
-    }
+    // eslint-disable-next-line one-var
+    let email, phone;
+    identifiers.forEach(identifer => {
+      if (identifer.startsWith('email')) {
+        const splitted = identifer.split(':');
+        [, email] = splitted;
+      }
+      if (identifer.startsWith('phone')) {
+        const splitted = identifer.split(':');
+        [, phone] = splitted;
+      }
+    });
+
     const payload = {
-      email,
       iss: provider,
       exp: (new Date(accessToken.expiresAt).getTime() - new Date(accessToken.updatedAt)) / 1000,
       iat: now.getSeconds(),
-      sub: 'user sub',
+      sub: auth.userId,
       aud: client.clientId
     };
+    if (email) {
+      payload.email = email;
+    }
+    if (phone) {
+      payload.phone = phone;
+    }
     const idToken = jwt.sign(payload, secret);
     tokenInfo.id_token = idToken;
   }
