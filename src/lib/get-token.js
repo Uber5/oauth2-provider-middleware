@@ -26,18 +26,6 @@ async function getToken(store, client, auth, state) {
     const secret = process.env.SECRET || 'uber5';
     const now = new Date();
     const { identifiers } = await store.getUserById(auth.userId);
-    // eslint-disable-next-line one-var
-    let email, phone;
-    identifiers.forEach(identifer => {
-      if (identifer.startsWith('email')) {
-        const splitted = identifer.split(':');
-        [, email] = splitted;
-      }
-      if (identifer.startsWith('phone')) {
-        const splitted = identifer.split(':');
-        [, phone] = splitted;
-      }
-    });
 
     const payload = {
       iss: provider,
@@ -46,12 +34,11 @@ async function getToken(store, client, auth, state) {
       sub: auth.userId,
       aud: client.clientId
     };
-    if (email) {
-      payload.email = email;
-    }
-    if (phone) {
-      payload.phone = phone;
-    }
+    identifiers.forEach(identifier => {
+      const splitted = identifier.split(':');
+      // eslint-disable-next-line prefer-destructuring
+      payload[splitted[0]] = splitted[1];
+    });
     const idToken = jwt.sign(payload, secret);
     tokenInfo.id_token = idToken;
   }

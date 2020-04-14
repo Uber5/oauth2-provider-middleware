@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
-require('dotenv');
 const { ok } = require('assert');
 const debug = require('debug')('oauth2-provider-middleware:token');
 const getToken = require('../lib/get-token');
