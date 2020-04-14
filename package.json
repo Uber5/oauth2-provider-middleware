@@ -71,5 +71,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uber5/oauth2-provider-middleware"
+  },
+  "jest": {
+    "setupFiles": [
+      "dotenv/config"
+    ]
   }
 }

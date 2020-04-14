@@ -27,17 +27,24 @@ async function getToken(store, client, auth, state) {
     const now = new Date();
     const { identifiers } = await store.getUserById(auth.userId);
 
-    const payload = {
-      iss: provider,
-      exp: (new Date(accessToken.expiresAt).getTime() - new Date(accessToken.updatedAt)) / 1000,
-      iat: now.getSeconds(),
-      sub: auth.userId,
-      aud: client.clientId
-    };
-    identifiers.forEach(identifier => {
-      const [key, value] = identifier.split(':');
-      payload[key] = value;
-    });
+    const payload = Object.assign(
+      // get the identifiers (if any) into the payload
+      (identifiers || {}).reduce((_payload, identifier) => {
+        const [key, value] = identifier.split(':');
+        // eslint-disable-next-line no-param-reassign
+        _payload[key] = value;
+        return _payload;
+      }, {}),
+      // ... and add other props
+      {
+        iss: provider,
+        // make it valid for 1 hour, may have to be configurable for client/customer?
+        exp: Math.floor(new Date(new Date().getTime() + 60 /* minutes */ * 60 * 1000) / 1000),
+        iat: Math.floor(now.getTime() / 1000),
+        sub: auth.userId,
+        aud: client.clientId
+      }
+    );
     const idToken = jwt.sign(payload, secret);
     tokenInfo.id_token = idToken;
   }

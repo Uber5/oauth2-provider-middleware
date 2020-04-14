@@ -37,8 +37,10 @@ describe('code flow', () => {
     const userInfo = {
       _id: Math.random(),
       name: `${Math.random()}`,
-      password: encryptPassword(plainPassword)
+      password: encryptPassword(plainPassword),
+      identifiers: ['email:x@test.com']
     };
+    const scopes = 'openid';
 
     const { _id } = userInfo;
     const code = newCode();
@@ -87,7 +89,8 @@ describe('code flow', () => {
           code,
           status: 'created',
           updatedAt: new Date(),
-          createdAt: new Date()
+          createdAt: new Date(),
+          scope: scopes
         };
       },
       getAuthByCode: async (_code, client) => {
@@ -103,7 +106,8 @@ describe('code flow', () => {
           code,
           status: 'created',
           updatedAt: new Date(),
-          createdAt: new Date()
+          createdAt: new Date(),
+          scope: scopes
         };
       },
       newAccessToken: async () => {
