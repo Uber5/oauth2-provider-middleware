@@ -35,9 +35,8 @@ async function getToken(store, client, auth, state) {
       aud: client.clientId
     };
     identifiers.forEach(identifier => {
-      const splitted = identifier.split(':');
-      // eslint-disable-next-line prefer-destructuring
-      payload[splitted[0]] = splitted[1];
+      const [ key, value ] = identifier.split(':');
+      payload[key] = value;
     });
     const idToken = jwt.sign(payload, secret);
     tokenInfo.id_token = idToken;
