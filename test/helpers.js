@@ -1,4 +1,3 @@
-require('dotenv');
 const puppeteer = require('puppeteer');
 
 const buildApp = require('../sample/app');
