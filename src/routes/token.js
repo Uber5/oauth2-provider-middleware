@@ -101,8 +101,11 @@ function token({ store }) {
         }
         if (grant_type === 'refresh_token') {
           return exchangeRefreshTokenForToken(store, client, state, refresh_token).then(
-            accessToken => {
-              res.send(accessToken);
+            tokenDetails => {
+              res.set('Cache-Control', 'no-store'); // as per spec https://tools.ietf.org/html/rfc6749#section-5.1
+              res.set('Pragma', 'no-cache');
+              debug('about to send refresh_token', tokenDetails);
+              res.send(tokenDetails);
             }
           );
         }
