@@ -80,10 +80,15 @@ function token({ store }) {
       code_verifier,
       refresh_token
     } = req.body;
-    debug('token request, body', req.body);
+    debug('token request, body headers', req.body, req.headers);
     const clientPromise = client_id
       ? getClientById(store, client_id, client_secret)
       : getClientOnTokenRequest(req.get('authorization'), store);
+
+    // TODO: If it's a refresh_token, and there is no client_id, then:
+    // find token, find authorization, find client,
+    // check if "public" client (or if "allowTokenRefreshWithoutClientAuth")
+    // and then call exchangeRefreshTokenForToken
 
     return clientPromise
       .then(client => {
